@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preflight": "npm run lint && npm run build && npm run test:smoke",
+    "test:smoke": "playwright test",
+    "test:smoke:headed": "playwright test --headed"
   },
   "dependencies": {
     "next": "16.2.4",
@@ -14,6 +17,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
