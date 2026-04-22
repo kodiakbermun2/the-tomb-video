@@ -29,12 +29,18 @@ export async function shopifyFetch<T>({
 }: ShopifyFetchArgs): Promise<T> {
   const { endpoint, token } = getShopifyConfig();
   const useToken = token && token !== "replace-with-your-storefront-token";
+  const isPrivateToken = useToken && token.startsWith("shpat_");
+  const authHeaders = useToken
+    ? isPrivateToken
+      ? { "Shopify-Storefront-Private-Token": token }
+      : { "X-Shopify-Storefront-Access-Token": token }
+    : {};
 
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(useToken ? { "X-Shopify-Storefront-Access-Token": token } : {}),
+      ...authHeaders,
     },
     body: JSON.stringify({
       query,
