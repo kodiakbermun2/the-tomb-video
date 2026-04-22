@@ -27,18 +27,18 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   description:
-    "Curated horror and sci-fi physical media from the video store era: VHS, Blu-ray, vinyl, books, posters, and collectible relics.",
+    "Shop a curated collection of new and used film and genre media from retro to contemporary and everything in-between.",
   openGraph: {
     title: "The Tomb Video",
     description:
-      "A cursed video store online. Shop handpicked horror and sci-fi physical media.",
+      "Shop a curated collection of new and used film and genre media from retro to contemporary and everything in-between.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "The Tomb Video",
     description:
-      "Curated horror and sci-fi physical media from the 70s through 90s video era.",
+      "Shop a curated collection of new and used film and genre media from retro to contemporary and everything in-between.",
   },
 };
 

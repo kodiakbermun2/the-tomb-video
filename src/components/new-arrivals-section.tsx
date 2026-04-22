@@ -119,9 +119,9 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
 
   return (
     <section className="mt-6 rounded-xl border border-white/10 bg-black/35 p-4 sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <h2 className="text-sm uppercase tracking-[0.22em] text-zinc-300">New arrivals</h2>
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em]">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em]">
           <button
             type="button"
             onClick={handleChronoClick}
@@ -158,6 +158,26 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
         </div>
       </div>
       <div className="relative lg:px-10">
+        <div className="mb-2 flex items-center justify-between lg:hidden">
+          <button
+            type="button"
+            onClick={handlePrev}
+            disabled={!canGoPrev}
+            aria-label="Show previous new arrivals"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            &lt;
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={!canGoNext}
+            aria-label="Show more new arrivals"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            &gt;
+          </button>
+        </div>
         <button
           type="button"
           onClick={handlePrev}

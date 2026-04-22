@@ -67,7 +67,7 @@ export default async function Home({ searchParams }: HomePageProps) {
     "vhs": "vhs-sticker-acid",
     "dvd": "vhs-sticker-cream",
     "blu-ray": "border-sky-300/85 bg-sky-300 !text-black",
-    "cd": "border-zinc-300/90 bg-zinc-300 !text-black",
+    "cd": "border-zinc-500/85 bg-zinc-400 !text-black",
     "4k": "border-white/35 bg-black !text-zinc-100",
     "laserdisc": "vhs-sticker-orange",
     "vinyl": "border-violet-300/85 bg-violet-200 !text-black",

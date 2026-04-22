@@ -18,7 +18,7 @@ export function getMediaChipClass(mediaType: string) {
   }
 
   if (normalized.includes("cd") || normalized.includes("compact disc")) {
-    return "border-zinc-300/90 bg-zinc-300 !text-black";
+    return "border-zinc-500/85 bg-zinc-400 !text-black";
   }
 
   if (normalized.includes("vinyl") || normalized.includes("lp")) {
