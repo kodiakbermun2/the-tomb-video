@@ -28,13 +28,16 @@ export async function shopifyFetch<T>({
   revalidate = 120,
 }: ShopifyFetchArgs): Promise<T> {
   const { endpoint, token } = getShopifyConfig();
-  const useToken = token && token !== "replace-with-your-storefront-token";
-  const isPrivateToken = useToken && token.startsWith("shpat_");
-  const authHeaders = useToken
-    ? isPrivateToken
-      ? { "Shopify-Storefront-Private-Token": token }
-      : { "X-Shopify-Storefront-Access-Token": token }
-    : {};
+  const useToken = typeof token === "string" && token !== "replace-with-your-storefront-token";
+  const authHeaders: Record<string, string> = {};
+
+  if (useToken) {
+    if (token.startsWith("shpat_")) {
+      authHeaders["Shopify-Storefront-Private-Token"] = token;
+    } else {
+      authHeaders["X-Shopify-Storefront-Access-Token"] = token;
+    }
+  }
 
   const response = await fetch(endpoint, {
     method: "POST",
