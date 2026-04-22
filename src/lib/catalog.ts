@@ -7,7 +7,10 @@ const FORMAT_KEYWORDS = [
   "bluray",
   "4k",
   "laserdisc",
+  "cd",
+  "compact disc",
   "vinyl",
+  "lp",
   "cassette",
   "book",
   "poster",
@@ -18,7 +21,23 @@ const LEADING_ARTICLE_PATTERN = /^(?:the|a|an)\s+/i;
 
 export function normalizeFormatLabel(value: string) {
   if (value === "bluray") return "blu-ray";
+  if (value === "compact disc") return "cd";
+  if (value === "lp") return "vinyl";
   return value;
+}
+
+function escapeRegexLiteral(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function includesFormat(searchCorpus: string, keyword: string) {
+  // Use word boundaries for short tokens like cd/lp to avoid accidental matches.
+  if (keyword.length <= 2) {
+    const tokenPattern = new RegExp(`\\b${escapeRegexLiteral(keyword)}\\b`, "i");
+    return tokenPattern.test(searchCorpus);
+  }
+
+  return searchCorpus.includes(keyword);
 }
 
 export function getSortableTitle(title: string) {
@@ -34,9 +53,11 @@ export function getProductFormats(product: Product) {
     .join(" ")
     .toLowerCase();
 
-  return FORMAT_KEYWORDS.filter((keyword) => searchCorpus.includes(keyword)).map(
-    normalizeFormatLabel,
-  );
+  const normalized = FORMAT_KEYWORDS
+    .filter((keyword) => includesFormat(searchCorpus, keyword))
+    .map(normalizeFormatLabel);
+
+  return Array.from(new Set(normalized));
 }
 
 export function getAvailableFormats(products: Product[]) {

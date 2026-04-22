@@ -17,5 +17,17 @@ export function getMediaChipClass(mediaType: string) {
     return "border-white/35 bg-black !text-zinc-100";
   }
 
+  if (normalized.includes("cd") || normalized.includes("compact disc")) {
+    return "border-zinc-300/90 bg-zinc-300 !text-black";
+  }
+
+  if (normalized.includes("vinyl") || normalized.includes("lp")) {
+    return "border-violet-300/85 bg-violet-200 !text-black";
+  }
+
+  if (normalized.includes("book")) {
+    return "border-amber-300/90 bg-amber-300 !text-black";
+  }
+
   return "";
 }

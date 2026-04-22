@@ -52,6 +52,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const formatLabelMap: Record<string, string> = {
     "4k": "4K",
     "blu-ray": "Blu-ray",
+    "cd": "CD",
     "dvd": "DVD",
     "vhs": "VHS",
     "laserdisc": "LaserDisc",
@@ -66,11 +67,12 @@ export default async function Home({ searchParams }: HomePageProps) {
     "vhs": "vhs-sticker-acid",
     "dvd": "vhs-sticker-cream",
     "blu-ray": "border-sky-300/85 bg-sky-300 !text-black",
+    "cd": "border-zinc-300/90 bg-zinc-300 !text-black",
     "4k": "border-white/35 bg-black !text-zinc-100",
     "laserdisc": "vhs-sticker-orange",
-    "vinyl": "vhs-sticker-pink",
+    "vinyl": "border-violet-300/85 bg-violet-200 !text-black",
     "cassette": "vhs-sticker-red",
-    "book": "vhs-sticker-cream",
+    "book": "border-amber-300/90 bg-amber-300 !text-black",
     "poster": "vhs-sticker-cream",
     "apparel": "vhs-sticker-cream",
   };
@@ -119,8 +121,8 @@ export default async function Home({ searchParams }: HomePageProps) {
       {shopifyReady && products.length === 0 ? (
         <section className="mt-6 rounded-md border border-amber-300/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-100">
           Shopify is connected, but no products are live yet. In Shopify, add a
-          product with media, set status to Active, and publish it to the Online
-          Store sales channel so it appears here.
+          product with media, set status to Active, and publish it to the Headless
+          (and Online Store, if desired) sales channel so it appears here.
         </section>
       ) : null}
 
