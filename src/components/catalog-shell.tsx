@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { filterProducts } from "@/lib/catalog";
+import { filterProducts, getSortableTitle } from "@/lib/catalog";
 import { Product } from "@/lib/shopify/types";
 import { CatalogControls } from "./catalog-controls";
 import { ProductGrid } from "./product-grid";
@@ -13,7 +13,6 @@ type CatalogShellProps = {
   formats: string[];
   initialQuery: string;
   initialFormat: string;
-  initialViewMode: "grid" | "dense";
 };
 
 export function CatalogShell({
@@ -21,12 +20,10 @@ export function CatalogShell({
   formats,
   initialQuery,
   initialFormat,
-  initialViewMode,
 }: CatalogShellProps) {
   const [searchDraft, setSearchDraft] = useState(initialQuery);
   const [activeQuery, setActiveQuery] = useState(initialQuery);
   const [activeFormat, setActiveFormat] = useState(initialFormat);
-  const [activeViewMode, setActiveViewMode] = useState<"grid" | "dense">(initialViewMode);
   const [sortMode, setSortMode] = useState<SortMode>("az");
 
   const filteredProducts = useMemo(() => {
@@ -39,9 +36,17 @@ export function CatalogShell({
     if (sortMode === "oldest") {
       next.reverse();
     } else if (sortMode === "az") {
-      next.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
+      next.sort((a, b) =>
+        getSortableTitle(a.title).localeCompare(getSortableTitle(b.title), undefined, {
+          sensitivity: "base",
+        }),
+      );
     } else if (sortMode === "za") {
-      next.sort((a, b) => b.title.localeCompare(a.title, undefined, { sensitivity: "base" }));
+      next.sort((a, b) =>
+        getSortableTitle(b.title).localeCompare(getSortableTitle(a.title), undefined, {
+          sensitivity: "base",
+        }),
+      );
     } else if (sortMode === "priceAsc") {
       next.sort((a, b) => getPrice(a) - getPrice(b));
     } else if (sortMode === "priceDesc") {
@@ -50,9 +55,6 @@ export function CatalogShell({
 
     return next;
   }, [products, activeQuery, activeFormat, sortMode]);
-
-  const firstShelfProducts = filteredProducts.slice(0, 4);
-  const continuedShelfProducts = filteredProducts.slice(4);
 
   const handleChronoToggle = () => {
     if (sortMode === "newest") {
@@ -99,43 +101,27 @@ export function CatalogShell({
         </p>
       </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-        <aside className="lg:w-[280px] lg:shrink-0">
-          <CatalogControls
-            query={searchDraft}
-            selectedFormat={activeFormat}
-            formats={formats}
-            viewMode={activeViewMode}
-            sortMode={sortMode}
-            className="sticky top-[110px] z-20 lg:h-[351px]"
-            onQueryChange={setSearchDraft}
-            onSearch={() => setActiveQuery(searchDraft)}
-            onSelectFormat={setActiveFormat}
-            onSelectView={setActiveViewMode}
-            onToggleChrono={handleChronoToggle}
-            onToggleAlpha={handleAlphaToggle}
-            onTogglePriceSort={handlePriceToggle}
-          />
-        </aside>
+      <CatalogControls
+        query={searchDraft}
+        selectedFormat={activeFormat}
+        formats={formats}
+        sortMode={sortMode}
+        className="mb-4"
+        onQueryChange={setSearchDraft}
+        onSearch={() => setActiveQuery(searchDraft)}
+        onSelectFormat={setActiveFormat}
+        onToggleChrono={handleChronoToggle}
+        onToggleAlpha={handleAlphaToggle}
+        onTogglePriceSort={handlePriceToggle}
+      />
 
-        <div className="min-w-0 flex-1">
-          <ProductGrid
-            products={firstShelfProducts}
-            dense={activeViewMode === "dense"}
-            emptyMessage="No matching titles found for your current search/filter combination."
-            className="mt-0"
-            eagerImageCount={1}
-          />
-        </div>
-      </div>
-
-      {continuedShelfProducts.length > 0 ? (
-        <ProductGrid
-          products={continuedShelfProducts}
-          dense={activeViewMode === "dense"}
-          className="mt-4"
-        />
-      ) : null}
+      <ProductGrid
+        products={filteredProducts}
+        emptyMessage="No matching titles found for your current search/filter combination."
+        className="mt-0"
+        columnsClassName="grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 xl:gap-4"
+        eagerImageCount={1}
+      />
     </section>
   );
 }

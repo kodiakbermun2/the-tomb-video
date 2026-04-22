@@ -14,9 +14,15 @@ const FORMAT_KEYWORDS = [
   "apparel",
 ] as const;
 
+const LEADING_ARTICLE_PATTERN = /^(?:the|a|an)\s+/i;
+
 export function normalizeFormatLabel(value: string) {
   if (value === "bluray") return "blu-ray";
   return value;
+}
+
+export function getSortableTitle(title: string) {
+  return title.trim().replace(LEADING_ARTICLE_PATTERN, "");
 }
 
 export function getProductFormats(product: Product) {

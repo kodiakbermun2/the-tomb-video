@@ -17,7 +17,6 @@ type HomePageProps = {
   searchParams: Promise<{
     q?: string;
     format?: string;
-    view?: string;
   }>;
 };
 
@@ -25,7 +24,6 @@ export default async function Home({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams.q ?? "";
   const format = resolvedSearchParams.format ?? "";
-  const viewMode = resolvedSearchParams.view === "dense" ? "dense" : "grid";
 
   let products: Product[] = [];
   let shopifyReady = true;
@@ -131,7 +129,6 @@ export default async function Home({ searchParams }: HomePageProps) {
         formats={formats}
         initialQuery={query}
         initialFormat={format}
-        initialViewMode={viewMode}
       />
     </div>
   );

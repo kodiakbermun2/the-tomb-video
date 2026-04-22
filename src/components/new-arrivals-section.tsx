@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { getSortableTitle } from "@/lib/catalog";
 import { Product } from "@/lib/shopify/types";
 import { ProductGrid } from "./product-grid";
 
@@ -12,6 +13,8 @@ type NewArrivalsSectionProps = {
 
 export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [pageStart, setPageStart] = useState(0);
+  const pageSize = 4;
 
   const featured = useMemo(() => {
     const next = [...products];
@@ -24,16 +27,24 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
     if (sortMode === "oldest") {
       next.reverse();
     } else if (sortMode === "az") {
-      next.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
+      next.sort((a, b) =>
+        getSortableTitle(a.title).localeCompare(getSortableTitle(b.title), undefined, {
+          sensitivity: "base",
+        }),
+      );
     } else if (sortMode === "za") {
-      next.sort((a, b) => b.title.localeCompare(a.title, undefined, { sensitivity: "base" }));
+      next.sort((a, b) =>
+        getSortableTitle(b.title).localeCompare(getSortableTitle(a.title), undefined, {
+          sensitivity: "base",
+        }),
+      );
     } else if (sortMode === "priceAsc") {
       next.sort((a, b) => getPrice(a) - getPrice(b));
     } else if (sortMode === "priceDesc") {
       next.sort((a, b) => getPrice(b) - getPrice(a));
     }
 
-    return next.slice(0, 4);
+    return next;
   }, [products, sortMode]);
 
   if (featured.length === 0) {
@@ -48,6 +59,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   const priceLabel = sortMode === "priceDesc" ? "$$$ -> $" : "$ -> $$$";
 
   const handleChronoClick = () => {
+    setPageStart(0);
     if (sortMode === "newest") {
       setSortMode("oldest");
       return;
@@ -62,6 +74,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   };
 
   const handleAlphaClick = () => {
+    setPageStart(0);
     if (sortMode === "az") {
       setSortMode("za");
       return;
@@ -76,6 +89,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   };
 
   const handlePriceClick = () => {
+    setPageStart(0);
     if (sortMode === "priceAsc") {
       setSortMode("priceDesc");
       return;
@@ -87,6 +101,20 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
     }
 
     setSortMode("priceAsc");
+  };
+
+  const maxPageStart = Math.max(0, Math.floor((featured.length - 1) / pageSize) * pageSize);
+  const safePageStart = Math.min(pageStart, maxPageStart);
+  const canGoPrev = safePageStart > 0;
+  const canGoNext = safePageStart + pageSize < featured.length;
+  const visibleProducts = featured.slice(safePageStart, safePageStart + pageSize);
+
+  const handlePrev = () => {
+    setPageStart((current) => Math.max(0, current - pageSize));
+  };
+
+  const handleNext = () => {
+    setPageStart((current) => Math.min(maxPageStart, current + pageSize));
   };
 
   return (
@@ -129,7 +157,27 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           </button>
         </div>
       </div>
-      <ProductGrid products={featured} rareBadgeVariant="arrivals" eagerImageCount={1} />
+      <div className="relative lg:px-10">
+        <button
+          type="button"
+          onClick={handlePrev}
+          disabled={!canGoPrev}
+          aria-label="Show previous new arrivals"
+          className="absolute left-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 lg:inline-flex"
+        >
+          &lt;
+        </button>
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!canGoNext}
+          aria-label="Show more new arrivals"
+          className="absolute right-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 lg:inline-flex"
+        >
+          &gt;
+        </button>
+        <ProductGrid products={visibleProducts} rareBadgeVariant="arrivals" eagerImageCount={1} />
+      </div>
     </section>
   );
 }

@@ -8,13 +8,11 @@ type CatalogControlsProps = {
   query: string;
   selectedFormat: string;
   formats: string[];
-  viewMode: "grid" | "dense";
   sortMode: SortMode;
   className?: string;
   onQueryChange: (value: string) => void;
   onSearch: () => void;
   onSelectFormat: (format: string) => void;
-  onSelectView: (view: "grid" | "dense") => void;
   onToggleChrono: () => void;
   onToggleAlpha: () => void;
   onTogglePriceSort: () => void;
@@ -24,13 +22,11 @@ export function CatalogControls({
   query,
   selectedFormat,
   formats,
-  viewMode,
   sortMode,
   className,
   onQueryChange,
   onSearch,
   onSelectFormat,
-  onSelectView,
   onToggleChrono,
   onToggleAlpha,
   onTogglePriceSort,
@@ -148,27 +144,6 @@ export function CatalogControls({
           </div>
         </div>
 
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-zinc-500">View:</span>
-          <button
-            type="button"
-            onClick={() => onSelectView("grid")}
-            className={`vhs-sticker-btn text-[10px] ${
-              viewMode === "grid" ? "vhs-sticker-acid" : "vhs-sticker-cream"
-            }`}
-          >
-            Grid
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectView("dense")}
-            className={`vhs-sticker-btn text-[10px] ${
-              viewMode === "dense" ? "vhs-sticker-pink" : "vhs-sticker-cream"
-            }`}
-          >
-            Dense
-          </button>
-        </div>
       </div>
     </section>
   );

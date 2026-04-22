@@ -6,6 +6,7 @@ type ProductGridProps = {
   emptyMessage?: string;
   dense?: boolean;
   className?: string;
+  columnsClassName?: string;
   rareBadgeVariant?: "catalog" | "arrivals";
   eagerImageCount?: number;
 };
@@ -15,10 +16,16 @@ export function ProductGrid({
   emptyMessage,
   dense = false,
   className,
+  columnsClassName,
   rareBadgeVariant = "catalog",
   eagerImageCount = 0,
 }: ProductGridProps) {
   const sectionClassName = className ?? "mt-8";
+  const resolvedColumnsClassName =
+    columnsClassName ??
+    (dense
+      ? "grid-cols-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 xl:grid-cols-6"
+      : "grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-5");
 
   if (products.length === 0) {
     return (
@@ -37,13 +44,7 @@ export function ProductGrid({
 
   return (
     <section aria-label="Product grid" className={sectionClassName}>
-      <div
-        className={`grid gap-3 ${
-          dense
-            ? "grid-cols-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 xl:grid-cols-6"
-            : "grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-5"
-        }`}
-      >
+      <div className={`grid gap-3 ${resolvedColumnsClassName}`}>
         {products.map((product, index) => (
           <ProductCard
             key={product.id}
