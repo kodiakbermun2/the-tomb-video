@@ -107,7 +107,7 @@ export function CatalogControls({
       <div className="mt-3 text-[10px] uppercase tracking-[0.18em] text-zinc-300">
         <div className="flex items-start gap-2">
           <span className="mt-1 text-zinc-500">Sort:</span>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
             <button
               type="button"
               onClick={onToggleChrono}
@@ -133,7 +133,7 @@ export function CatalogControls({
             <button
               type="button"
               onClick={onTogglePriceSort}
-              className={`col-start-1 rounded-full border px-2.5 py-1 font-bold transition-colors ${
+              className={`rounded-full border px-2.5 py-1 font-bold transition-colors ${
                 priceActive
                   ? "border-lime-300/80 bg-lime-300 text-black"
                   : "border-white/35 bg-white text-black"
