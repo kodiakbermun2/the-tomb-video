@@ -58,6 +58,45 @@ function hashTag(tag: string) {
   return hash;
 }
 
+function buildStickerColorSequence(tags: string[]) {
+  const palette = [
+    "vhs-sticker-acid",
+    "vhs-sticker-cream",
+    "vhs-sticker-pink",
+    "vhs-sticker-orange",
+    "vhs-sticker-red",
+    "border-sky-300/85 bg-sky-300 !text-black",
+  ];
+
+  const sequence: string[] = [];
+
+  for (const tag of tags) {
+    const baseIndex = hashTag(tag) % palette.length;
+    let nextColor = palette[baseIndex];
+
+    if (
+      sequence.length >= 2 &&
+      sequence[sequence.length - 1] === nextColor &&
+      sequence[sequence.length - 2] === nextColor
+    ) {
+      for (let offset = 1; offset < palette.length; offset += 1) {
+        const candidate = palette[(baseIndex + offset) % palette.length];
+        if (
+          sequence[sequence.length - 1] !== candidate ||
+          sequence[sequence.length - 2] !== candidate
+        ) {
+          nextColor = candidate;
+          break;
+        }
+      }
+    }
+
+    sequence.push(nextColor);
+  }
+
+  return sequence;
+}
+
 export default async function CollectionsPage() {
   const products = await getProducts(80);
   const allTags = new Set<string>();
@@ -125,14 +164,6 @@ export default async function CollectionsPage() {
     ...(otherTags.length > 0 ? [{ title: "Other Tags", id: getSectionId("Other Tags") }] : []),
   ];
 
-  const stickerColors = [
-    "vhs-sticker-acid",
-    "vhs-sticker-cream",
-    "vhs-sticker-pink",
-    "vhs-sticker-orange",
-    "vhs-sticker-red",
-  ];
-  const blueStickerClass = "border-sky-300/85 bg-sky-300 !text-black";
   const stickerTilts = ["vhs-sticker-tilt-left", "", "vhs-sticker-tilt-right"];
 
   return (
@@ -175,51 +206,59 @@ export default async function CollectionsPage() {
             </nav>
 
             {groupedSections.map((group) => (
-              <section id={getSectionId(group.title)} key={group.title} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-12 sm:p-5 sm:pl-16">
-                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[11px] italic tracking-[0.3em] text-sky-200/95 sm:text-sm">
+              <section id={getSectionId(group.title)} key={group.title} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-16 sm:p-5 sm:pl-24">
+                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
                   {group.title}
                 </h2>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                  {group.tags.map((tag) => {
-                    const hash = hashTag(tag);
-                    const color = hash % 5 === 0 ? blueStickerClass : stickerColors[hash % stickerColors.length];
-                    const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+                  {(() => {
+                    const colorSequence = buildStickerColorSequence(group.tags);
 
-                    return (
-                      <Link
-                        key={`${group.title}-${tag}`}
-                        href={`/tags/${encodeURIComponent(tag)}`}
-                        className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
-                      >
-                        {formatTagDisplay(tag)}
-                      </Link>
-                    );
-                  })}
+                    return group.tags.map((tag, index) => {
+                      const hash = hashTag(tag);
+                      const color = colorSequence[index];
+                      const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+
+                      return (
+                        <Link
+                          key={`${group.title}-${tag}`}
+                          href={`/tags/${encodeURIComponent(tag)}`}
+                          className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
+                        >
+                          {formatTagDisplay(tag)}
+                        </Link>
+                      );
+                    });
+                  })()}
                 </div>
               </section>
             ))}
 
             {otherTags.length > 0 ? (
-              <section id={getSectionId("Other Tags")} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-12 sm:p-5 sm:pl-16">
-                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[11px] italic tracking-[0.3em] text-sky-200/95 sm:text-sm">
+              <section id={getSectionId("Other Tags")} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-16 sm:p-5 sm:pl-24">
+                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
                   Other Tags
                 </h2>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                  {otherTags.map((tag) => {
-                    const hash = hashTag(tag);
-                    const color = hash % 5 === 0 ? blueStickerClass : stickerColors[hash % stickerColors.length];
-                    const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+                  {(() => {
+                    const colorSequence = buildStickerColorSequence(otherTags);
 
-                    return (
-                      <Link
-                        key={`other-${tag}`}
-                        href={`/tags/${encodeURIComponent(tag)}`}
-                        className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
-                      >
-                        {formatTagDisplay(tag)}
-                      </Link>
-                    );
-                  })}
+                    return otherTags.map((tag, index) => {
+                      const hash = hashTag(tag);
+                      const color = colorSequence[index];
+                      const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+
+                      return (
+                        <Link
+                          key={`other-${tag}`}
+                          href={`/tags/${encodeURIComponent(tag)}`}
+                          className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
+                        >
+                          {formatTagDisplay(tag)}
+                        </Link>
+                      );
+                    });
+                  })()}
                 </div>
               </section>
             ) : null}
