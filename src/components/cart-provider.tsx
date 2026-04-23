@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -52,6 +53,20 @@ type CartSyncResponse = {
   totalQuantity: number;
 };
 
+type CartLineSyncResponse = {
+  cartId: string;
+  checkoutUrl: string;
+  totalQuantity: number;
+  lines?: {
+    nodes?: Array<{
+      quantity: number;
+      merchandise: {
+        id: string;
+      };
+    }>;
+  };
+};
+
 function readStoredCart(): StoredCart {
   if (typeof window === "undefined") {
     return { items: [], cartId: null, checkoutUrl: null };
@@ -83,6 +98,107 @@ function readStoredCart(): StoredCart {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [storedCart, setStoredCart] = useState<StoredCart>(readStoredCart);
   const { items, cartId, checkoutUrl } = storedCart;
+  const csrfTokenRef = useRef<string | null>(null);
+
+  const ensureCsrfToken = useCallback(async () => {
+    if (csrfTokenRef.current) {
+      return csrfTokenRef.current;
+    }
+
+    const response = await fetch("/api/csrf", {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to initialize secure cart session.");
+    }
+
+    const data = (await response.json()) as { token?: string };
+    if (!data.token) {
+      throw new Error("Missing CSRF token.");
+    }
+
+    csrfTokenRef.current = data.token;
+    return data.token;
+  }, []);
+
+  const postCart = useCallback(
+    async (payload: Record<string, unknown>) => {
+      const execute = async (token: string) =>
+        fetch("/api/cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-csrf-token": token,
+          },
+          body: JSON.stringify(payload),
+        });
+
+      let csrfToken = await ensureCsrfToken();
+      let response = await execute(csrfToken);
+
+      if (response.status === 400) {
+        const body = (await response.clone().json().catch(() => null)) as { error?: string } | null;
+        if (body?.error === "Invalid CSRF token.") {
+          csrfTokenRef.current = null;
+          csrfToken = await ensureCsrfToken();
+          response = await execute(csrfToken);
+        }
+      }
+
+      return response;
+    },
+    [ensureCsrfToken],
+  );
+
+  const refreshCartFromServer = useCallback(
+    async (activeCartId: string) => {
+      const response = await postCart({
+        action: "get",
+        cartId: activeCartId,
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const serverCart = (await response.json()) as CartLineSyncResponse | null;
+      if (!serverCart) {
+        setStoredCart((previous) => ({
+          ...previous,
+          items: [],
+          cartId: null,
+          checkoutUrl: null,
+        }));
+        return;
+      }
+
+      const lineMap = new Map(
+        (serverCart.lines?.nodes ?? []).map((line) => [line.merchandise.id, line.quantity]),
+      );
+
+      setStoredCart((previous) => ({
+        ...previous,
+        items: previous.items
+          .map((item) => {
+            const serverQuantity = lineMap.get(item.merchandiseId);
+            if (!serverQuantity) {
+              return null;
+            }
+
+            return {
+              ...item,
+              quantity: clampQuantity(serverQuantity, item.maxQuantity),
+            };
+          })
+          .filter((item): item is CartItem => Boolean(item)),
+        cartId: serverCart.cartId,
+        checkoutUrl: serverCart.checkoutUrl,
+      }));
+    },
+    [postCart],
+  );
 
   const syncCartAction = useCallback(
     async (
@@ -95,18 +211,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...payload,
-          cartId,
-        }),
+      const response = await postCart({
+        ...payload,
+        cartId,
       });
 
       if (!response.ok) {
+        if (response.status === 409 || response.status === 404) {
+          await refreshCartFromServer(cartId);
+        }
         throw new Error("Failed to synchronize cart.");
       }
 
@@ -117,7 +230,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         checkoutUrl: data.checkoutUrl,
       }));
     },
-    [cartId],
+    [cartId, postCart, refreshCartFromServer],
   );
 
   useEffect(() => {
@@ -169,17 +282,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         };
       });
 
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "add",
-          cartId,
-          merchandiseId: item.merchandiseId,
-          quantity: allowedToAdd,
-        }),
+      const response = await postCart({
+        action: "add",
+        cartId,
+        merchandiseId: item.merchandiseId,
+        quantity: allowedToAdd,
       });
 
       if (!response.ok) {
@@ -197,7 +304,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         checkoutUrl: data.checkoutUrl,
       }));
     },
-    [cartId, items],
+    [cartId, items, postCart],
   );
 
   const increaseItemQuantity = useCallback(

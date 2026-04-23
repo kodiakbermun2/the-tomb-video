@@ -25,8 +25,13 @@ const VALID_ACTIONS = new Set<CartRequestBody["action"]>([
 
 const CART_ID_PATTERN = /^gid:\/\/shopify\/Cart\/.+/;
 const MERCHANDISE_ID_PATTERN = /^gid:\/\/shopify\/ProductVariant\/.+/;
+const CSRF_COOKIE_NAME = "tomb_csrf_token";
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 120;
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 class ValidationError extends Error {}
+class RateLimitError extends Error {}
 
 function isSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value);
@@ -46,12 +51,52 @@ function ensureValidId(value: string, pattern: RegExp, label: string) {
   }
 }
 
+function getRateLimitKey(request: NextRequest) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const clientIp = forwardedFor?.split(",")[0]?.trim() || "unknown-ip";
+  return `${clientIp}:api-cart`;
+}
+
+function enforceRateLimit(request: NextRequest) {
+  const key = getRateLimitKey(request);
+  const now = Date.now();
+  const current = rateLimitStore.get(key);
+
+  if (!current || current.resetAt <= now) {
+    rateLimitStore.set(key, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return;
+  }
+
+  if (current.count >= RATE_LIMIT_MAX) {
+    throw new RateLimitError("Too many cart requests. Please retry shortly.");
+  }
+
+  current.count += 1;
+  rateLimitStore.set(key, current);
+}
+
+function validateCsrfToken(request: NextRequest) {
+  const headerToken = request.headers.get("x-csrf-token");
+  const cookieToken = request.cookies.get(CSRF_COOKIE_NAME)?.value;
+
+  if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+    throw new ValidationError("Invalid CSRF token.");
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
+    enforceRateLimit(request);
+
     const origin = request.headers.get("origin");
     if (origin && origin !== request.nextUrl.origin) {
       return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
     }
+
+    validateCsrfToken(request);
 
     const body = (await request.json()) as Partial<CartRequestBody>;
 
@@ -73,7 +118,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Cart not found." }, { status: 404 });
       }
 
-      return NextResponse.json(cart);
+      return NextResponse.json({
+        cartId: cart.id,
+        checkoutUrl: cart.checkoutUrl,
+        totalQuantity: cart.totalQuantity,
+        lines: cart.lines,
+      });
     }
 
     if (action === "clear") {
@@ -143,6 +193,10 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof ValidationError || message.startsWith("Invalid ")) {
       return NextResponse.json({ error: message }, { status: 400 });
+    }
+
+    if (error instanceof RateLimitError) {
+      return NextResponse.json({ error: message }, { status: 429 });
     }
 
     if (message.includes("Unable to find Shopify cart line")) {
