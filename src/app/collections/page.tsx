@@ -129,7 +129,7 @@ export default async function CollectionsPage() {
             {groupedSections.map((group) => (
               <section key={group.title} className="noise-panel rounded-lg p-4 sm:p-5">
                 <h2 className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-300">{group.title}</h2>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {group.tags.map((tag) => {
                     const hash = hashTag(tag);
                     const color = stickerColors[hash % stickerColors.length];
@@ -139,7 +139,7 @@ export default async function CollectionsPage() {
                       <Link
                         key={`${group.title}-${tag}`}
                         href={`/tags/${encodeURIComponent(tag)}`}
-                        className={`vhs-sticker-btn h-[5.5rem] w-[5.5rem] justify-center self-center justify-self-center p-2 text-center text-[11px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:text-[13px] ${color} ${tilt}`}
+                        className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
                       >
                         {formatTagDisplay(tag)}
                       </Link>
@@ -152,7 +152,7 @@ export default async function CollectionsPage() {
             {otherTags.length > 0 ? (
               <section className="noise-panel rounded-lg p-4 sm:p-5">
                 <h2 className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-300">Other Tags</h2>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {otherTags.map((tag) => {
                     const hash = hashTag(tag);
                     const color = stickerColors[hash % stickerColors.length];
@@ -162,7 +162,7 @@ export default async function CollectionsPage() {
                       <Link
                         key={`other-${tag}`}
                         href={`/tags/${encodeURIComponent(tag)}`}
-                        className={`vhs-sticker-btn h-[5.5rem] w-[5.5rem] justify-center self-center justify-self-center p-2 text-center text-[11px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:text-[13px] ${color} ${tilt}`}
+                        className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
                       >
                         {formatTagDisplay(tag)}
                       </Link>

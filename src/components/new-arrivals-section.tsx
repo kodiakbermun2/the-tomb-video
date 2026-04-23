@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { getSortableTitle } from "@/lib/catalog";
 import { Product } from "@/lib/shopify/types";
 import { ProductGrid } from "./product-grid";
@@ -14,6 +14,7 @@ type NewArrivalsSectionProps = {
 export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [pageStart, setPageStart] = useState(0);
+  const touchStartX = useRef<number | null>(null);
   const pageSize = 4;
 
   const featured = useMemo(() => {
@@ -117,6 +118,32 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
     setPageStart((current) => Math.min(maxPageStart, current + pageSize));
   };
 
+  const handleTouchStart: React.TouchEventHandler<HTMLDivElement> = (event) => {
+    touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd: React.TouchEventHandler<HTMLDivElement> = (event) => {
+    const startX = touchStartX.current;
+    const endX = event.changedTouches[0]?.clientX ?? null;
+    touchStartX.current = null;
+
+    if (startX === null || endX === null) {
+      return;
+    }
+
+    const deltaX = endX - startX;
+    const swipeThreshold = 45;
+
+    if (deltaX > swipeThreshold && canGoPrev) {
+      handlePrev();
+      return;
+    }
+
+    if (deltaX < -swipeThreshold && canGoNext) {
+      handleNext();
+    }
+  };
+
   return (
     <section className="mt-6 rounded-xl border border-white/10 bg-black/35 p-4 sm:p-5">
       <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
@@ -157,7 +184,11 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           </button>
         </div>
       </div>
-      <div className="relative px-1 sm:px-10">
+      <div
+        className="relative px-1 sm:px-10"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <button
           type="button"
           onClick={handlePrev}

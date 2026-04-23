@@ -80,7 +80,7 @@ export function CatalogControls({
             <button
               type="button"
               onClick={() => onSelectFormat("")}
-              className={`vhs-sticker-btn text-[10px] ${
+              className={`vhs-sticker-btn min-h-9 px-3 text-[11px] ${
                 !selectedFormat ? "vhs-sticker-acid" : "vhs-sticker-cream"
               }`}
             >
@@ -91,7 +91,7 @@ export function CatalogControls({
                 key={format}
                 type="button"
                 onClick={() => onSelectFormat(format)}
-                className={`vhs-sticker-btn text-[10px] ${
+                className={`vhs-sticker-btn min-h-9 px-3 text-[11px] ${
                   selectedFormat.toLowerCase() === format.toLowerCase()
                     ? "vhs-sticker-acid"
                     : "vhs-sticker-cream"
@@ -111,7 +111,7 @@ export function CatalogControls({
             <button
               type="button"
               onClick={onToggleChrono}
-              className={`rounded-full border px-2.5 py-1 font-bold transition-colors ${
+              className={`rounded-full border px-3 py-1.5 font-bold transition-colors ${
                 chronoActive
                   ? "border-lime-300/80 bg-lime-300 text-black"
                   : "border-white/35 bg-white text-black"
@@ -122,7 +122,7 @@ export function CatalogControls({
             <button
               type="button"
               onClick={onToggleAlpha}
-              className={`rounded-full border px-2.5 py-1 font-bold transition-colors ${
+              className={`rounded-full border px-3 py-1.5 font-bold transition-colors ${
                 alphaActive
                   ? "border-lime-300/80 bg-lime-300 text-black"
                   : "border-white/35 bg-white text-black"
@@ -133,7 +133,7 @@ export function CatalogControls({
             <button
               type="button"
               onClick={onTogglePriceSort}
-              className={`rounded-full border px-2.5 py-1 font-bold transition-colors ${
+              className={`rounded-full border px-3 py-1.5 font-bold transition-colors ${
                 priceActive
                   ? "border-lime-300/80 bg-lime-300 text-black"
                   : "border-white/35 bg-white text-black"

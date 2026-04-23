@@ -16,6 +16,38 @@ type ProductPageProps = {
   params: Promise<{ handle: string }>;
 };
 
+function getLetterboxdFilmLabel(url: string) {
+  try {
+    const parsed = new URL(url);
+    const segments = parsed.pathname.split("/").filter(Boolean);
+    const filmIndex = segments.findIndex((segment) => segment.toLowerCase() === "film");
+    const slug =
+      filmIndex >= 0 && segments[filmIndex + 1]
+        ? segments[filmIndex + 1]
+        : segments[segments.length - 1] || "";
+
+    const plain = decodeURIComponent(slug).replace(/-/g, " ").trim();
+    if (!plain) {
+      return "Film";
+    }
+
+    return plain
+      .split(/\s+/)
+      .map((word) => {
+        if (/^[ivxlcdm]+$/i.test(word)) {
+          return word.toUpperCase();
+        }
+        if (/^\d+$/.test(word)) {
+          return word;
+        }
+        return `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`;
+      })
+      .join(" ");
+  } catch {
+    return "Film";
+  }
+}
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { handle } = await params;
   const product = await getProductByHandle(handle);
@@ -270,20 +302,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
           ) : null}
 
           {letterboxdUrls.length > 0 ? (
-            <div className="mt-4">
-              <a
-                href={letterboxdUrls[0]}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-black/45 px-3 py-2 text-xs uppercase tracking-[0.18em] text-zinc-100 transition hover:border-lime-300/70 hover:text-lime-300"
-              >
-                <span className="inline-flex items-center gap-1" aria-hidden="true">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#00E054]" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#FF8000]" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#40BCF4]" />
-                </span>
-                View on Letterboxd
-              </a>
+            <div className="mt-4 flex flex-col gap-2">
+              {letterboxdUrls.map((url, index) => (
+                <div key={url} className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-black/45 px-3 py-2 text-xs uppercase tracking-[0.18em] text-zinc-100 transition hover:border-lime-300/70 hover:text-lime-300"
+                  >
+                    <span className="inline-flex items-center gap-1" aria-hidden="true">
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#00E054]" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#FF8000]" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#40BCF4]" />
+                    </span>
+                    View on Letterboxd
+                  </a>
+                  {letterboxdUrls.length > 1 ? (
+                    <span className="text-xs text-zinc-400">{getLetterboxdFilmLabel(url) || `Film ${index + 1}`}</span>
+                  ) : null}
+                </div>
+              ))}
             </div>
           ) : null}
         </div>
