@@ -20,7 +20,11 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Personalities",
-    tags: ["Alfred Hitchcock", "George Romero", "Jerry Goldsmith", "Lucio Fulci", "Elvira", "Dracula"],
+    tags: ["Alfred Hitchcock", "George Romero", "Jerry Goldsmith", "Lucio Fulci", "Elvira", "Dracula", "Charles Band"],
+  },
+  {
+    title: "Format",
+    tags: ["Paperback", "Soundtrack"],
   },
   {
     title: "Publisher",
@@ -50,7 +54,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Label",
-    tags: ["Shout! Factory", "Scream Factory", "Blue Underground", "Mondo Macabro"],
+    tags: ["Shout! Factory", "Scream Factory", "Blue Underground", "Mondo Macabro", "Criterion", "Full Moon Features"],
   },
   {
     title: "Media",
