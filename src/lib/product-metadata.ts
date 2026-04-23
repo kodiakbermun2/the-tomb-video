@@ -75,6 +75,42 @@ function expandInlineMarkers(lines: string[]) {
     .filter(Boolean);
 }
 
+function splitConditionParts(rawConditionValue: string) {
+  const normalized = normalizeWhitespace(rawConditionValue);
+  if (!normalized) {
+    return { conditionValue: "", remainder: "" };
+  }
+
+  const knownRatings = [
+    "well-read",
+    "well read",
+    "brand new",
+    "like new",
+    "very good",
+    "good",
+    "fair",
+    "acceptable",
+    "poor",
+    "new",
+    "used",
+  ];
+
+  const lower = normalized.toLowerCase();
+  for (const rating of knownRatings) {
+    if (lower === rating) {
+      return { conditionValue: normalized, remainder: "" };
+    }
+
+    if (lower.startsWith(`${rating} `)) {
+      const conditionValue = normalized.slice(0, rating.length).trim();
+      const remainder = normalized.slice(rating.length).trim();
+      return { conditionValue, remainder };
+    }
+  }
+
+  return { conditionValue: normalized, remainder: "" };
+}
+
 export function parseProductDescription(product: Product): ParsedProductDescription {
   const lines = expandInlineMarkers(normalizeDescriptionLines(product));
   const nonTagLines: string[] = [];
@@ -146,7 +182,17 @@ export function parseProductDescription(product: Product): ParsedProductDescript
     }
 
     if (!conditionLine && /^condition\s*:/i.test(scrubbedLine)) {
-      conditionLine = scrubbedLine;
+      const rawConditionValue = scrubbedLine.replace(/^condition\s*:/i, "").trim();
+      const { conditionValue, remainder } = splitConditionParts(rawConditionValue);
+
+      conditionLine = conditionValue
+        ? `Condition: ${conditionValue}`
+        : "Condition:";
+
+      if (remainder) {
+        nonTagLines.push(remainder);
+      }
+
       continue;
     }
 
