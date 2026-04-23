@@ -26,7 +26,7 @@ export function getMediaChipClass(mediaType: string) {
   }
 
   if (normalized.includes("book")) {
-    return "border-amber-200/90 bg-amber-100 !text-black";
+    return "border-amber-300/90 bg-amber-300 !text-black";
   }
 
   return "";

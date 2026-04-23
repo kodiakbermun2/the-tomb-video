@@ -16,6 +16,61 @@ type ProductPageProps = {
   params: Promise<{ handle: string }>;
 };
 
+function decodeHandleValue(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeHandleValue(value: string) {
+  return decodeHandleValue(value)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/©/g, " c ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-");
+}
+
+function normalizeLooseHandleValue(value: string) {
+  return normalizeHandleValue(value)
+    .replace(/(^|-)c(?=-|$)/g, "$1")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-");
+}
+
+async function resolveProductFromHandle(rawHandle: string) {
+  const decodedHandle = decodeHandleValue(rawHandle);
+  const directMatch = await getProductByHandle(decodedHandle);
+  if (directMatch) {
+    return directMatch;
+  }
+
+  const normalizedInput = normalizeHandleValue(decodedHandle);
+  const looseNormalizedInput = normalizeLooseHandleValue(decodedHandle);
+  if (!normalizedInput) {
+    return null;
+  }
+
+  const recentProducts = await getProducts(250);
+  return (
+    recentProducts.find((product) => {
+      const normalizedHandle = normalizeHandleValue(product.handle);
+      const looseNormalizedHandle = normalizeLooseHandleValue(product.handle);
+      return (
+        normalizedHandle === normalizedInput ||
+        normalizedHandle === looseNormalizedInput ||
+        looseNormalizedHandle === normalizedInput ||
+        looseNormalizedHandle === looseNormalizedInput
+      );
+    }) ?? null
+  );
+}
+
 function getLetterboxdFilmLabel(url: string) {
   try {
     const parsed = new URL(url);
@@ -50,7 +105,7 @@ function getLetterboxdFilmLabel(url: string) {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { handle } = await params;
-  const product = await getProductByHandle(handle);
+  const product = await resolveProductFromHandle(handle);
 
   if (!product) {
     return {
@@ -75,7 +130,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { handle } = await params;
-  const product = await getProductByHandle(handle);
+  const product = await resolveProductFromHandle(handle);
 
   if (!product) {
     notFound();

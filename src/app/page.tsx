@@ -72,7 +72,7 @@ export default async function Home({ searchParams }: HomePageProps) {
     "laserdisc": "vhs-sticker-orange",
     "vinyl": "border-violet-300/85 bg-violet-200 !text-black",
     "cassette": "vhs-sticker-red",
-    "book": "border-amber-200/90 bg-amber-100 !text-black",
+    "book": "border-amber-300/90 bg-amber-300 !text-black",
     "poster": "vhs-sticker-cream",
     "apparel": "vhs-sticker-cream",
   };
