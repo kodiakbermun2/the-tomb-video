@@ -39,6 +39,12 @@ export function SiteHeader() {
             Collections
           </Link>
           <Link
+            href="/bargain-bin"
+            className="vhs-sticker-btn h-10 px-3 py-0 text-center text-[10px] leading-none border-sky-300/85 bg-sky-300 !text-black sm:h-20 sm:w-20 sm:px-0 sm:text-[11px]"
+          >
+            Bargain Bin
+          </Link>
+          <Link
             href="/cart"
             className="rounded-full border border-lime-300/60 bg-lime-300/10 px-2.5 py-1.5 text-[11px] tracking-[0.12em] transition-colors hover:bg-lime-300/20 sm:px-3 sm:text-inherit sm:tracking-[0.18em]"
           >

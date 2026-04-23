@@ -84,7 +84,7 @@ export function CatalogControls({
                 !selectedFormat ? "vhs-sticker-acid" : "vhs-sticker-cream"
               }`}
             >
-              All formats
+              Everything
             </button>
             {formats.map((format) => (
               <button

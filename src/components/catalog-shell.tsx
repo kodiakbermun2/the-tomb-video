@@ -13,6 +13,8 @@ type CatalogShellProps = {
   formats: string[];
   initialQuery: string;
   initialFormat: string;
+  sectionId?: string;
+  sectionTitle?: string;
 };
 
 export function CatalogShell({
@@ -20,6 +22,8 @@ export function CatalogShell({
   formats,
   initialQuery,
   initialFormat,
+  sectionId = "catalog",
+  sectionTitle = "Full Catalog",
 }: CatalogShellProps) {
   const [searchDraft, setSearchDraft] = useState(initialQuery);
   const [activeQuery, setActiveQuery] = useState(initialQuery);
@@ -93,9 +97,9 @@ export function CatalogShell({
   };
 
   return (
-    <section id="catalog" className="mt-6 scroll-mt-32">
+    <section id={sectionId} className="mt-6 scroll-mt-32">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-lg font-semibold text-zinc-100">Full Catalog</h2>
+        <h2 className="text-lg font-semibold text-zinc-100">{sectionTitle}</h2>
         <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
           {filteredProducts.length} titles found
         </p>

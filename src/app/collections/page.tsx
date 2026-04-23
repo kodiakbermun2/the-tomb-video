@@ -88,33 +88,21 @@ function buildStickerColorSequence(tags: string[]) {
     "border-sky-300/85 bg-sky-300 !text-black",
   ];
 
-  const sequence: string[] = [];
+  // Shuffle once per section (deterministically) and then cycle colors.
+  // With up to 6 columns, this prevents heavy same-color clustering in any row.
+  const seed = hashTag(tags.join("|"));
+  const shuffled = [...palette];
+  let state = seed || 1;
 
-  for (const tag of tags) {
-    const baseIndex = hashTag(tag) % palette.length;
-    let nextColor = palette[baseIndex];
-
-    if (
-      sequence.length >= 2 &&
-      sequence[sequence.length - 1] === nextColor &&
-      sequence[sequence.length - 2] === nextColor
-    ) {
-      for (let offset = 1; offset < palette.length; offset += 1) {
-        const candidate = palette[(baseIndex + offset) % palette.length];
-        if (
-          sequence[sequence.length - 1] !== candidate ||
-          sequence[sequence.length - 2] !== candidate
-        ) {
-          nextColor = candidate;
-          break;
-        }
-      }
-    }
-
-    sequence.push(nextColor);
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    const j = state % (i + 1);
+    const temp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = temp;
   }
 
-  return sequence;
+  return tags.map((_, index) => shuffled[index % shuffled.length]);
 }
 
 function getStickerTextClass(tag: string) {

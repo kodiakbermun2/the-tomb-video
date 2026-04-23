@@ -2,23 +2,35 @@ import type { MetadataRoute } from "next";
 import { getCollections, getProducts } from "@/lib/shopify";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://thetombvideo.com";
+const BASE_URL_NORMALIZED = BASE_URL.replace(/\/+$/, "");
+
+function urlFor(path: string) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${BASE_URL_NORMALIZED}${normalizedPath}`;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     {
-      url: `${BASE_URL}/`,
+      url: urlFor("/"),
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
     {
-      url: `${BASE_URL}/collections`,
+      url: urlFor("/collections"),
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/cart`,
+      url: urlFor("/bargain-bin"),
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: urlFor("/cart"),
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.5,
@@ -32,14 +44,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
-      url: `${BASE_URL}/products/${product.handle}`,
+      url: urlFor(`/products/${product.handle}`),
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.7,
     }));
 
     const collectionRoutes: MetadataRoute.Sitemap = collections.map((collection) => ({
-      url: `${BASE_URL}/collections/${collection.handle}`,
+      url: urlFor(`/collections/${collection.handle}`),
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.75,
