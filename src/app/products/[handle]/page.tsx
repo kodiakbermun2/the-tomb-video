@@ -156,6 +156,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const isRegionFree = /(?:region\s*[- ]*free|all\s*[- ]*region)/i.test(normalizedRegionCode);
   const isRegionNumber = /^\d$/.test(normalizedRegionCode);
   const isRegionLetter = /^[A-Za-z]$/.test(normalizedRegionCode);
+  const hasStructuredDescription = Boolean(
+    mediaType ||
+      studio ||
+      genres.length > 0 ||
+      ownershipLine ||
+      conditionLine ||
+      normalizedRegionCode ||
+      tags.length > 0 ||
+      letterboxdUrls.length > 0,
+  );
+  const detailsBodyText = detailsText || (!hasStructuredDescription ? product.description : "");
   const availableQuantity = product.variants.nodes.reduce(
     (total, variant) => total + Math.max(0, variant.quantityAvailable ?? (variant.availableForSale ? 1 : 0)),
     0,
@@ -302,9 +313,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           ) : null}
 
-          <p className="tomb-subtle whitespace-pre-wrap text-sm leading-relaxed sm:text-base">
-            {detailsText || product.description || "No product description available yet."}
-          </p>
+          {detailsBodyText ? (
+            <p className="tomb-subtle whitespace-pre-wrap text-sm leading-relaxed sm:text-base">
+              {detailsBodyText}
+            </p>
+          ) : !hasStructuredDescription ? (
+            <p className="tomb-subtle whitespace-pre-wrap text-sm leading-relaxed sm:text-base">
+              No product description available yet.
+            </p>
+          ) : null}
 
           {normalizedRegionCode ? (
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs uppercase text-zinc-300">
