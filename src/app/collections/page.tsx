@@ -16,29 +16,39 @@ export const metadata: Metadata = {
 const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   {
     title: "Genre",
-    tags: ["Horror", "Comedy", "Crime", "Thriller"],
+    tags: ["Horror", "Comedy", "Crime", "Thriller", "Action", "Mystery", "Sci-Fi"],
   },
   {
     title: "Studio",
-    tags: ["Shout! Factory", "Scream Factory", "Blue Underground", "Mondo Macabro"],
+    tags: [
+      "Columbia Pictures",
+      "Universal",
+      "Varese Sarabande Records",
+      "Anchor Bay",
+      "MGM",
+    ],
   },
   {
     title: "Label",
-    tags: ["Columbia Pictures", "Universal", "Varese Sarabande Records"],
+    tags: ["Shout! Factory", "Scream Factory", "Blue Underground", "Mondo Macabro"],
   },
   {
     title: "Media",
-    tags: ["CD", "VHS", "DVD", "Blu-ray"],
+    tags: ["CD", "VHS", "DVD", "Blu-ray", "Book"],
   },
   {
     title: "Theme",
-    tags: ["Slasher", "Vampires", "Zombies", "Giallo", "Gore"],
+    tags: ["Slasher", "Vampires", "Zombies", "Giallo", "Gore", "Clowns"],
   },
   {
     title: "Era",
-    tags: ["'00s Films", "'60s Films", "'70s Films", "'80s Films", "'90s Films"],
+    tags: ["'00s Films", "'60s Films", "'70s Films", "'80s Films", "'90s Films", "'70s Books"],
   },
 ];
+
+function getSectionId(title: string) {
+  return `collection-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
+}
 
 function hashTag(tag: string) {
   let hash = 0;
@@ -85,13 +95,35 @@ export default async function CollectionsPage() {
       })
       .filter((tag): tag is string => Boolean(tag));
 
+    groupTags.sort((a, b) =>
+      formatTagDisplay(a).localeCompare(formatTagDisplay(b), undefined, {
+        sensitivity: "base",
+      }),
+    );
+
     return {
       title: group.title,
       tags: groupTags,
     };
-  }).filter((group) => group.tags.length > 0);
+  })
+    .filter((group) => group.tags.length > 0)
+    .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
 
-  const otherTags = tags.filter((tag) => !usedKeys.has(getNormalizedTagKey(tag)));
+  const otherTags = tags
+    .filter((tag) => !usedKeys.has(getNormalizedTagKey(tag)))
+    .sort((a, b) =>
+      formatTagDisplay(a).localeCompare(formatTagDisplay(b), undefined, {
+        sensitivity: "base",
+      }),
+    );
+
+  const jumpSections = [
+    ...groupedSections.map((group) => ({
+      title: group.title,
+      id: getSectionId(group.title),
+    })),
+    ...(otherTags.length > 0 ? [{ title: "Other Tags", id: getSectionId("Other Tags") }] : []),
+  ];
 
   const stickerColors = [
     "vhs-sticker-acid",
@@ -100,6 +132,7 @@ export default async function CollectionsPage() {
     "vhs-sticker-orange",
     "vhs-sticker-red",
   ];
+  const blueStickerClass = "border-sky-300/85 bg-sky-300 !text-black";
   const stickerTilts = ["vhs-sticker-tilt-left", "", "vhs-sticker-tilt-right"];
 
   return (
@@ -126,13 +159,30 @@ export default async function CollectionsPage() {
           </div>
         ) : (
           <div className="space-y-6">
+            <nav className="noise-panel rounded-lg p-4 sm:p-5" aria-label="Jump to collection section">
+              <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-zinc-400">Quick jump</p>
+              <div className="flex flex-wrap gap-2">
+                {jumpSections.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="vhs-sticker-btn vhs-sticker-cream px-3 py-1.5 text-[10px] sm:text-[11px]"
+                  >
+                    {section.title}
+                  </a>
+                ))}
+              </div>
+            </nav>
+
             {groupedSections.map((group) => (
-              <section key={group.title} className="noise-panel rounded-lg p-4 sm:p-5">
-                <h2 className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-300">{group.title}</h2>
+              <section id={getSectionId(group.title)} key={group.title} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-12 sm:p-5 sm:pl-16">
+                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[11px] italic tracking-[0.3em] text-sky-200/95 sm:text-sm">
+                  {group.title}
+                </h2>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {group.tags.map((tag) => {
                     const hash = hashTag(tag);
-                    const color = stickerColors[hash % stickerColors.length];
+                    const color = hash % 5 === 0 ? blueStickerClass : stickerColors[hash % stickerColors.length];
                     const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
 
                     return (
@@ -150,12 +200,14 @@ export default async function CollectionsPage() {
             ))}
 
             {otherTags.length > 0 ? (
-              <section className="noise-panel rounded-lg p-4 sm:p-5">
-                <h2 className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-300">Other Tags</h2>
+              <section id={getSectionId("Other Tags")} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-12 sm:p-5 sm:pl-16">
+                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[11px] italic tracking-[0.3em] text-sky-200/95 sm:text-sm">
+                  Other Tags
+                </h2>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {otherTags.map((tag) => {
                     const hash = hashTag(tag);
-                    const color = stickerColors[hash % stickerColors.length];
+                    const color = hash % 5 === 0 ? blueStickerClass : stickerColors[hash % stickerColors.length];
                     const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
 
                     return (
