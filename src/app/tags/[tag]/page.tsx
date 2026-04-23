@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ProductBackButton } from "@/components/product-back-button";
-import { ProductGrid } from "@/components/product-grid";
+import { ProductSortPanel } from "@/components/product-sort-panel";
 import { hasExactTag } from "@/lib/product-metadata";
 import { getProducts } from "@/lib/shopify";
 
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   const decodedTag = decodeURIComponent(tag);
 
   return {
-    title: `Tag: ${decodedTag}`,
+    title: `Collection: ${decodedTag}`,
     alternates: {
       canonical: `/tags/${encodeURIComponent(decodedTag)}`,
     },
@@ -37,13 +37,13 @@ export default async function TagPage({ params }: TagPageProps) {
       </div>
 
       <header className="noise-panel rounded-lg p-5 sm:p-7">
-        <h1 className="tomb-title mt-3 text-4xl sm:text-5xl">Tag: {decodedTag}</h1>
+        <h1 className="tomb-title mt-3 text-4xl sm:text-5xl">COLLECTION: {decodedTag}</h1>
         <p className="tomb-subtle mt-2 text-sm sm:text-base">
-          Showing all items tagged exactly as {decodedTag}.
+          Browse the full selection of {decodedTag} sold by The Tomb Video.
         </p>
       </header>
 
-      <ProductGrid
+      <ProductSortPanel
         products={products}
         emptyMessage={`No products are currently tagged as ${decodedTag}.`}
       />

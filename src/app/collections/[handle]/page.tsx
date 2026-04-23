@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductBackButton } from "@/components/product-back-button";
-import { ProductGrid } from "@/components/product-grid";
+import { ProductSortPanel } from "@/components/product-sort-panel";
 import { getCollectionByHandle } from "@/lib/shopify";
 
 type CollectionPageProps = {
@@ -51,7 +51,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         </p>
       </header>
 
-      <ProductGrid products={products} />
+      <ProductSortPanel products={products} />
     </section>
   );
 }
