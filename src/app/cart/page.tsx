@@ -38,6 +38,18 @@ export default function CartPage() {
     0,
   );
 
+  let safeCheckoutUrl: string | null = null;
+  if (checkoutUrl) {
+    try {
+      const parsed = new URL(checkoutUrl);
+      if (parsed.protocol === "https:") {
+        safeCheckoutUrl = parsed.toString();
+      }
+    } catch {
+      safeCheckoutUrl = null;
+    }
+  }
+
   const currency = items[0]?.currencyCode ?? "USD";
 
   const handleIncrease = async (merchandiseId: string, title: string) => {
@@ -186,8 +198,11 @@ export default function CartPage() {
           </p>
 
           <a
-            href={checkoutUrl ?? "#"}
-            className="vhs-sticker-btn vhs-sticker-pink vhs-sticker-tilt-right mt-5 w-full text-[10px]"
+            href={safeCheckoutUrl ?? "#"}
+            aria-disabled={!safeCheckoutUrl}
+            className={`vhs-sticker-btn vhs-sticker-pink vhs-sticker-tilt-right mt-5 w-full text-[10px] ${
+              safeCheckoutUrl ? "" : "pointer-events-none opacity-50"
+            }`}
           >
             Checkout securely
           </a>

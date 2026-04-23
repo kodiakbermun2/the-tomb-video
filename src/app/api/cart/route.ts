@@ -15,22 +15,67 @@ type CartRequestBody = {
   quantity?: number;
 };
 
+const VALID_ACTIONS = new Set<CartRequestBody["action"]>([
+  "add",
+  "get",
+  "setQuantity",
+  "remove",
+  "clear",
+]);
+
+const CART_ID_PATTERN = /^gid:\/\/shopify\/Cart\/.+/;
+const MERCHANDISE_ID_PATTERN = /^gid:\/\/shopify\/ProductVariant\/.+/;
+
+function isSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value);
+}
+
+function clampCartQuantity(value: unknown) {
+  if (!isSafeInteger(value)) {
+    return 1;
+  }
+
+  return Math.max(1, Math.min(25, value));
+}
+
+function ensureValidId(value: string, pattern: RegExp, label: string) {
+  if (!pattern.test(value)) {
+    throw new Error(`Invalid ${label}.`);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as CartRequestBody;
+    const origin = request.headers.get("origin");
+    if (origin && origin !== request.nextUrl.origin) {
+      return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    }
 
-    if (body.action === "get") {
+    const body = (await request.json()) as Partial<CartRequestBody>;
+
+    if (!body.action || !VALID_ACTIONS.has(body.action as CartRequestBody["action"])) {
+      return NextResponse.json({ error: "Invalid cart action." }, { status: 400 });
+    }
+
+    const action = body.action as CartRequestBody["action"];
+
+    if (action === "get") {
       if (!body.cartId) {
         return NextResponse.json({ error: "cartId is required" }, { status: 400 });
       }
+
+      ensureValidId(body.cartId, CART_ID_PATTERN, "cartId");
+
       const cart = await getCart(body.cartId);
       return NextResponse.json(cart);
     }
 
-    if (body.action === "clear") {
+    if (action === "clear") {
       if (!body.cartId) {
         return NextResponse.json({ error: "cartId is required" }, { status: 400 });
       }
+
+      ensureValidId(body.cartId, CART_ID_PATTERN, "cartId");
 
       const cart = await clearCartLines(body.cartId);
       return NextResponse.json({
@@ -40,8 +85,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (!body.cartId && body.action !== "add") {
+    if (!body.cartId && action !== "add") {
       return NextResponse.json({ error: "cartId is required" }, { status: 400 });
+    }
+
+    if (body.cartId) {
+      ensureValidId(body.cartId, CART_ID_PATTERN, "cartId");
     }
 
     if (!body.merchandiseId) {
@@ -51,8 +100,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (body.action === "setQuantity") {
-      const quantity = Math.max(1, body.quantity ?? 1);
+    ensureValidId(body.merchandiseId, MERCHANDISE_ID_PATTERN, "merchandiseId");
+
+    if (action === "setQuantity") {
+      const quantity = clampCartQuantity(body.quantity);
       const cart = await updateCartLineQuantity(body.cartId!, body.merchandiseId, quantity);
       return NextResponse.json({
         cartId: cart.id,
@@ -61,7 +112,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (body.action === "remove") {
+    if (action === "remove") {
       const cart = await removeCartLine(body.cartId!, body.merchandiseId);
       return NextResponse.json({
         cartId: cart.id,
@@ -70,7 +121,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const quantity = Math.max(1, body.quantity ?? 1);
+    const quantity = clampCartQuantity(body.quantity);
 
     const cart = body.cartId
       ? await addCartLines(body.cartId, body.merchandiseId, quantity)
