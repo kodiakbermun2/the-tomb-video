@@ -20,7 +20,11 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Personalities",
-    tags: ["Alfred Hitchcock", "George Romero", "Jerry Goldsmith", "Lucio Fulci"],
+    tags: ["Alfred Hitchcock", "George Romero", "Jerry Goldsmith", "Lucio Fulci", "Elvira", "Dracula"],
+  },
+  {
+    title: "Publisher",
+    tags: ["Playboy Press"],
   },
   {
     title: "Region",
@@ -35,12 +39,13 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
     tags: [
       "Columbia Pictures",
       "Universal",
-      "Varese Sarabande Records",
+      "Varèse Sarabande Records",
       "Anchor Bay",
       "MGM",
       "Mill Creek Entertainment",
       "MCA Home Video",
       "RLJE Films",
+      "Playboy Press",
     ],
   },
   {
@@ -53,7 +58,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Theme",
-    tags: ["Slasher", "Vampires", "Zombies", "Giallo", "Gore", "Clowns"],
+    tags: ["Slasher", "Vampires", "Zombies", "Giallo", "Gore", "Clowns", "Bizarre", "Post-Apocalyptic"],
   },
   {
     title: "Era",
@@ -110,6 +115,20 @@ function buildStickerColorSequence(tags: string[]) {
   }
 
   return sequence;
+}
+
+function getStickerTextClass(tag: string) {
+  const normalized = getNormalizedTagKey(tag);
+
+  if (normalized === getNormalizedTagKey("Mill Creek Entertainment")) {
+    return "text-[10px] tracking-[0.05em] sm:text-[11px]";
+  }
+
+  if (normalized === getNormalizedTagKey("Ozploitation")) {
+    return "text-[11px] tracking-[0.06em] sm:text-[12px]";
+  }
+
+  return "text-[12px] tracking-[0.08em] sm:text-[13px]";
 }
 
 export default async function CollectionsPage() {
@@ -222,9 +241,11 @@ export default async function CollectionsPage() {
 
             {groupedSections.map((group) => (
               <section id={getSectionId(group.title)} key={group.title} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-16 sm:p-5 sm:pl-24">
-                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
-                  {group.title}
-                </h2>
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center sm:w-16">
+                  <h2 className="tomb-title -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
+                    {group.title}
+                  </h2>
+                </div>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                   {(() => {
                     const colorSequence = buildStickerColorSequence(group.tags);
@@ -233,10 +254,7 @@ export default async function CollectionsPage() {
                       const hash = hashTag(tag);
                       const color = colorSequence[index];
                       const tilt = stickerTilts[(hash >>> 3) % stickerTilts.length];
-                      const compactTextClass =
-                        getNormalizedTagKey(tag) === getNormalizedTagKey("Mill Creek Entertainment")
-                          ? "text-[10px] tracking-[0.05em] sm:text-[11px]"
-                          : "text-[12px] tracking-[0.08em] sm:text-[13px]";
+                      const compactTextClass = getStickerTextClass(tag);
 
                       return (
                         <Link
@@ -255,9 +273,11 @@ export default async function CollectionsPage() {
 
             {otherTags.length > 0 ? (
               <section id={getSectionId("Other Tags")} className="noise-panel relative scroll-mt-28 rounded-lg p-4 pl-16 sm:p-5 sm:pl-24">
-                <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
-                  Other Tags
-                </h2>
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center sm:w-16">
+                  <h2 className="tomb-title -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
+                    Other Tags
+                  </h2>
+                </div>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                   {(() => {
                     const colorSequence = buildStickerColorSequence(otherTags);
@@ -266,10 +286,7 @@ export default async function CollectionsPage() {
                       const hash = hashTag(tag);
                       const color = colorSequence[index];
                       const tilt = stickerTilts[(hash >>> 3) % stickerTilts.length];
-                      const compactTextClass =
-                        getNormalizedTagKey(tag) === getNormalizedTagKey("Mill Creek Entertainment")
-                          ? "text-[10px] tracking-[0.05em] sm:text-[11px]"
-                          : "text-[12px] tracking-[0.08em] sm:text-[13px]";
+                      const compactTextClass = getStickerTextClass(tag);
 
                       return (
                         <Link
