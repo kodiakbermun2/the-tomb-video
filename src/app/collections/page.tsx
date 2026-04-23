@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ProductBackButton } from "@/components/product-back-button";
 import { getProductTags } from "@/lib/product-metadata";
 import { getProducts } from "@/lib/shopify";
+import { formatTagDisplay, getNormalizedTagKey } from "@/lib/tag-format";
 
 export const revalidate = 300;
 export const metadata: Metadata = {
@@ -11,6 +12,33 @@ export const metadata: Metadata = {
     canonical: "/collections",
   },
 };
+
+const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
+  {
+    title: "Genre",
+    tags: ["Horror", "Comedy", "Crime", "Thriller"],
+  },
+  {
+    title: "Studio",
+    tags: ["Shout! Factory", "Scream Factory", "Blue Underground", "Mondo Macabro"],
+  },
+  {
+    title: "Label",
+    tags: ["Columbia Pictures", "Universal", "Varese Sarabande Records"],
+  },
+  {
+    title: "Media",
+    tags: ["CD", "VHS", "DVD", "Blu-ray"],
+  },
+  {
+    title: "Theme",
+    tags: ["Slasher", "Vampires", "Zombies", "Giallo", "Gore"],
+  },
+  {
+    title: "Era",
+    tags: ["'00s Films", "'60s Films", "'70s Films", "'80s Films", "'90s Films"],
+  },
+];
 
 function hashTag(tag: string) {
   let hash = 0;
@@ -33,6 +61,37 @@ export default async function CollectionsPage() {
   const tags = Array.from(allTags).sort((a, b) =>
     a.localeCompare(b, undefined, { sensitivity: "base" }),
   );
+  const tagByKey = new Map<string, string>();
+
+  for (const tag of tags) {
+    const key = getNormalizedTagKey(tag);
+    if (!tagByKey.has(key)) {
+      tagByKey.set(key, tag);
+    }
+  }
+
+  const usedKeys = new Set<string>();
+
+  const groupedSections = COLLECTION_TAG_GROUPS.map((group) => {
+    const groupTags = group.tags
+      .map((requestedTag) => {
+        const key = getNormalizedTagKey(requestedTag);
+        const matched = tagByKey.get(key);
+        if (!matched) {
+          return null;
+        }
+        usedKeys.add(key);
+        return matched;
+      })
+      .filter((tag): tag is string => Boolean(tag));
+
+    return {
+      title: group.title,
+      tags: groupTags,
+    };
+  }).filter((group) => group.tags.length > 0);
+
+  const otherTags = tags.filter((tag) => !usedKeys.has(getNormalizedTagKey(tag)));
 
   const stickerColors = [
     "vhs-sticker-acid",
@@ -66,22 +125,52 @@ export default async function CollectionsPage() {
             No tags found yet. Add a tags line in product descriptions to build this view.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {tags.map((tag) => {
-              const hash = hashTag(tag);
-              const color = stickerColors[hash % stickerColors.length];
-              const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+          <div className="space-y-6">
+            {groupedSections.map((group) => (
+              <section key={group.title} className="noise-panel rounded-lg p-4 sm:p-5">
+                <h2 className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-300">{group.title}</h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {group.tags.map((tag) => {
+                    const hash = hashTag(tag);
+                    const color = stickerColors[hash % stickerColors.length];
+                    const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
 
-              return (
-                <Link
-                  key={tag}
-                  href={`/tags/${encodeURIComponent(tag)}`}
-                  className={`vhs-sticker-btn h-[5.5rem] w-[5.5rem] justify-center self-center justify-self-center p-2 text-center text-[11px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:text-[13px] ${color} ${tilt}`}
-                >
-                  {tag}
-                </Link>
-              );
-            })}
+                    return (
+                      <Link
+                        key={`${group.title}-${tag}`}
+                        href={`/tags/${encodeURIComponent(tag)}`}
+                        className={`vhs-sticker-btn h-[5.5rem] w-[5.5rem] justify-center self-center justify-self-center p-2 text-center text-[11px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:text-[13px] ${color} ${tilt}`}
+                      >
+                        {formatTagDisplay(tag)}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+
+            {otherTags.length > 0 ? (
+              <section className="noise-panel rounded-lg p-4 sm:p-5">
+                <h2 className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-300">Other Tags</h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {otherTags.map((tag) => {
+                    const hash = hashTag(tag);
+                    const color = stickerColors[hash % stickerColors.length];
+                    const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+
+                    return (
+                      <Link
+                        key={`other-${tag}`}
+                        href={`/tags/${encodeURIComponent(tag)}`}
+                        className={`vhs-sticker-btn h-[5.5rem] w-[5.5rem] justify-center self-center justify-self-center p-2 text-center text-[11px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:text-[13px] ${color} ${tilt}`}
+                      >
+                        {formatTagDisplay(tag)}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
           </div>
         )}
       </div>

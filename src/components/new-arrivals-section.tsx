@@ -17,7 +17,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   const pageSize = 4;
 
   const featured = useMemo(() => {
-    const next = [...products];
+    const next = [...products.slice(0, 12)];
     const getPrice = (product: Product) => {
       const firstVariant = product.variants.nodes[0];
       const price = firstVariant?.price ?? product.priceRange.minVariantPrice;
@@ -157,33 +157,13 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           </button>
         </div>
       </div>
-      <div className="relative lg:px-10">
-        <div className="mb-2 flex items-center justify-between lg:hidden">
-          <button
-            type="button"
-            onClick={handlePrev}
-            disabled={!canGoPrev}
-            aria-label="Show previous new arrivals"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            &lt;
-          </button>
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={!canGoNext}
-            aria-label="Show more new arrivals"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            &gt;
-          </button>
-        </div>
+      <div className="relative px-1 sm:px-10">
         <button
           type="button"
           onClick={handlePrev}
           disabled={!canGoPrev}
           aria-label="Show previous new arrivals"
-          className="absolute left-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 lg:inline-flex"
+          className="absolute left-1 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white/95 font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:left-0 sm:h-9 sm:w-9"
         >
           &lt;
         </button>
@@ -192,7 +172,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           onClick={handleNext}
           disabled={!canGoNext}
           aria-label="Show more new arrivals"
-          className="absolute right-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 lg:inline-flex"
+          className="absolute right-1 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white/95 font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:right-0 sm:h-9 sm:w-9"
         >
           &gt;
         </button>

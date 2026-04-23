@@ -28,13 +28,13 @@ export function SiteHeader() {
         <nav className="flex w-full items-center justify-between gap-2 text-xs uppercase tracking-[0.18em] sm:w-auto sm:justify-start sm:gap-3 sm:text-[11px]">
           <Link
             href="/"
-            className="vhs-sticker-btn vhs-sticker-cream h-12 w-12 p-0 text-center text-[8px] leading-[1.05] sm:h-20 sm:w-20 sm:text-[10px]"
+            className="vhs-sticker-btn vhs-sticker-cream h-10 px-3 py-0 text-center text-[9px] leading-none sm:h-20 sm:w-20 sm:px-0 sm:text-[10px]"
           >
             Catalog
           </Link>
           <Link
             href="/collections"
-            className="vhs-sticker-btn vhs-sticker-acid h-12 w-12 p-0 text-center text-[8px] leading-[1.05] sm:h-20 sm:w-20 sm:text-[9px]"
+            className="vhs-sticker-btn vhs-sticker-acid h-10 px-3 py-0 text-center text-[9px] leading-none sm:h-20 sm:w-20 sm:px-0 sm:text-[9px]"
           >
             Collections
           </Link>

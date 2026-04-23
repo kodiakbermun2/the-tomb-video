@@ -90,12 +90,12 @@ export default async function Home({ searchParams }: HomePageProps) {
           <p className="tomb-subtle mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
             A curated collection of used and new physical media and movie memorabilia spanning horror, sci-fi, cult films, weird cinema, video store classics, and unconventional contemporary hits.
           </p>
-          <div className="mt-6 flex flex-wrap gap-2 text-xs uppercase tracking-widest text-zinc-200/90">
+          <div className="mt-6 flex flex-wrap gap-2.5 text-xs uppercase tracking-widest text-zinc-200/90">
             {inStockFormats.map((format) => (
               <Link
                 key={format}
                 href={`/tags/${encodeURIComponent(format)}`}
-                className={`vhs-sticker-btn px-3 py-1 text-[10px] ${formatClassMap[format] ?? "vhs-sticker-cream"}`}
+                className={`vhs-sticker-btn px-4 py-1.5 text-[11px] ${formatClassMap[format] ?? "vhs-sticker-cream"}`}
               >
                 {formatLabelMap[format] ?? format}
               </Link>
