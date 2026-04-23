@@ -16,7 +16,19 @@ export const metadata: Metadata = {
 const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   {
     title: "Genre",
-    tags: ["Horror", "Comedy", "Crime", "Thriller", "Action", "Mystery", "Sci-Fi"],
+    tags: ["Horror", "Comedy", "Crime", "Thriller", "Action", "Mystery", "Sci-Fi", "Suspense"],
+  },
+  {
+    title: "Personalities",
+    tags: ["Alfred Hitchcock", "George Romero", "Jerry Goldsmith", "Lucio Fulci"],
+  },
+  {
+    title: "Region",
+    tags: ["Indonesian", "Italian", "Ozploitation"],
+  },
+  {
+    title: "Series",
+    tags: ["Mad Max"],
   },
   {
     title: "Studio",
@@ -26,6 +38,9 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Varese Sarabande Records",
       "Anchor Bay",
       "MGM",
+      "Mill Creek Entertainment",
+      "MCA Home Video",
+      "RLJE Films",
     ],
   },
   {
@@ -210,20 +225,24 @@ export default async function CollectionsPage() {
                 <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
                   {group.title}
                 </h2>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                   {(() => {
                     const colorSequence = buildStickerColorSequence(group.tags);
 
                     return group.tags.map((tag, index) => {
                       const hash = hashTag(tag);
                       const color = colorSequence[index];
-                      const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+                      const tilt = stickerTilts[(hash >>> 3) % stickerTilts.length];
+                      const compactTextClass =
+                        getNormalizedTagKey(tag) === getNormalizedTagKey("Mill Creek Entertainment")
+                          ? "text-[10px] tracking-[0.05em] sm:text-[11px]"
+                          : "text-[12px] tracking-[0.08em] sm:text-[13px]";
 
                       return (
                         <Link
                           key={`${group.title}-${tag}`}
                           href={`/tags/${encodeURIComponent(tag)}`}
-                          className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
+                          className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center font-black leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 ${compactTextClass} ${color} ${tilt}`}
                         >
                           {formatTagDisplay(tag)}
                         </Link>
@@ -239,20 +258,24 @@ export default async function CollectionsPage() {
                 <h2 className="tomb-title absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[18px] italic tracking-[0.22em] text-sky-200/95 sm:text-[30px]">
                   Other Tags
                 </h2>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                   {(() => {
                     const colorSequence = buildStickerColorSequence(otherTags);
 
                     return otherTags.map((tag, index) => {
                       const hash = hashTag(tag);
                       const color = colorSequence[index];
-                      const tilt = stickerTilts[(hash >> 3) % stickerTilts.length];
+                      const tilt = stickerTilts[(hash >>> 3) % stickerTilts.length];
+                      const compactTextClass =
+                        getNormalizedTagKey(tag) === getNormalizedTagKey("Mill Creek Entertainment")
+                          ? "text-[10px] tracking-[0.05em] sm:text-[11px]"
+                          : "text-[12px] tracking-[0.08em] sm:text-[13px]";
 
                       return (
                         <Link
                           key={`other-${tag}`}
                           href={`/tags/${encodeURIComponent(tag)}`}
-                          className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center text-[12px] font-black tracking-[0.08em] leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 sm:text-[13px] ${color} ${tilt}`}
+                          className={`vhs-sticker-btn h-[4.5rem] w-full max-w-[9rem] justify-center self-center justify-self-center px-3 py-2 text-center font-black leading-[1.05] drop-shadow-[0_1px_0_rgba(255,255,255,0.35)] sm:h-28 sm:w-28 sm:max-w-none sm:px-2 ${compactTextClass} ${color} ${tilt}`}
                         >
                           {formatTagDisplay(tag)}
                         </Link>
