@@ -26,6 +26,8 @@ const VALID_ACTIONS = new Set<CartRequestBody["action"]>([
 const CART_ID_PATTERN = /^gid:\/\/shopify\/Cart\/.+/;
 const MERCHANDISE_ID_PATTERN = /^gid:\/\/shopify\/ProductVariant\/.+/;
 
+class ValidationError extends Error {}
+
 function isSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value);
 }
@@ -40,7 +42,7 @@ function clampCartQuantity(value: unknown) {
 
 function ensureValidId(value: string, pattern: RegExp, label: string) {
   if (!pattern.test(value)) {
-    throw new Error(`Invalid ${label}.`);
+    throw new ValidationError(`Invalid ${label}.`);
   }
 }
 
@@ -67,6 +69,10 @@ export async function POST(request: NextRequest) {
       ensureValidId(body.cartId, CART_ID_PATTERN, "cartId");
 
       const cart = await getCart(body.cartId);
+      if (!cart) {
+        return NextResponse.json({ error: "Cart not found." }, { status: 404 });
+      }
+
       return NextResponse.json(cart);
     }
 
@@ -134,6 +140,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown cart error.";
+
+    if (error instanceof ValidationError || message.startsWith("Invalid ")) {
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+
+    if (message.includes("Unable to find Shopify cart line")) {
+      return NextResponse.json({ error: message }, { status: 409 });
+    }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
