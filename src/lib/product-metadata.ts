@@ -111,6 +111,28 @@ function splitConditionParts(rawConditionValue: string) {
   return { conditionValue: normalized, remainder: "" };
 }
 
+function parseHeaderLine(line: string) {
+  const parts = line
+    .split(/\s*\/\s*/)
+    .map((part) => normalizeWhitespace(part))
+    .filter(Boolean);
+
+  // Require at least media type / distributor / genre(s).
+  if (parts.length < 3) {
+    return null;
+  }
+
+  return {
+    mediaType: parts[0] || "",
+    studio: parts[1] || "",
+    genres: (parts[2] || "")
+      .split(",")
+      .map((genre) => normalizeWhitespace(genre))
+      .filter(Boolean),
+    isOutOfPrint: /\boop\b/i.test(parts[3] || ""),
+  };
+}
+
 export function parseProductDescription(product: Product): ParsedProductDescription {
   const lines = expandInlineMarkers(normalizeDescriptionLines(product));
   const nonTagLines: string[] = [];
@@ -124,7 +146,23 @@ export function parseProductDescription(product: Product): ParsedProductDescript
   let conditionLine = "";
   let regionCode = "";
 
-  for (const line of lines) {
+  const headerLine = lines[0] ? normalizeWhitespace(lines[0]) : "";
+  const parsedHeader = headerLine ? parseHeaderLine(headerLine) : null;
+
+  if (parsedHeader) {
+    mediaType = parsedHeader.mediaType;
+    studio = parsedHeader.studio;
+    genres = parsedHeader.genres;
+    isOutOfPrint = parsedHeader.isOutOfPrint;
+  }
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    const line = lines[lineIndex];
+
+    if (lineIndex === 0 && parsedHeader) {
+      continue;
+    }
+
     const foundUrls = line.match(/https?:\/\/[^\s)]+/gi) ?? [];
     let scrubbedLine = normalizeWhitespace(line);
 
@@ -148,26 +186,6 @@ export function parseProductDescription(product: Product): ParsedProductDescript
 
     if (!scrubbedLine) {
       continue;
-    }
-
-    if (!mediaType && scrubbedLine.includes("/")) {
-      const parts = scrubbedLine
-        .split(/\s*\/\s*/)
-        .map((part) => normalizeWhitespace(part))
-        .filter(Boolean);
-
-      if (parts.length >= 2) {
-        mediaType = parts[0] || "";
-        studio = parts[1] || "";
-        genres = (parts[2] || "")
-          .split(",")
-          .map((genre) => normalizeWhitespace(genre))
-          .filter(Boolean);
-        if (/\boop\b/i.test(parts[3] || "")) {
-          isOutOfPrint = true;
-        }
-        continue;
-      }
     }
 
     const tagMatch = scrubbedLine.match(/^tags?\s*:\s*(.+)$/i);

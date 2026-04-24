@@ -190,6 +190,23 @@ npm run preview
 - Product, cart, and checkout data continue to come from Shopify.
 - Checkout remains Shopify-hosted and secure.
 
+### Optional: GitHub Actions Deploy (Recommended)
+
+This repo includes a manual workflow at [.github/workflows/deploy-cloudflare.yml](.github/workflows/deploy-cloudflare.yml) so deploys run on Linux CI instead of Windows.
+
+In GitHub repository settings, add these Actions secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+- `SHOPIFY_STORE_DOMAIN`
+- `SHOPIFY_STOREFRONT_ACCESS_TOKEN`
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SHOW_PLACEHOLDER_RACK` (set to `false`)
+
+Run it from:
+
+- GitHub -> Actions -> `Deploy Cloudflare Worker` -> `Run workflow`
+
 ## Launch Playbook (Guided)
 
 Use this sequence to go live quickly.

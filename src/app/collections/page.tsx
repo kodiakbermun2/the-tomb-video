@@ -92,21 +92,37 @@ function buildStickerColorSequence(tags: string[]) {
     "border-sky-300/85 bg-sky-300 !text-black",
   ];
 
-  // Shuffle once per section (deterministically) and then cycle colors.
-  // With up to 6 columns, this prevents heavy same-color clustering in any row.
-  const seed = hashTag(tags.join("|"));
-  const shuffled = [...palette];
-  let state = seed || 1;
+  // Shuffle each visual row deterministically so rows don't repeat the same pattern.
+  const rowSize = palette.length;
+  const baseSeed = hashTag(tags.join("|")) || 1;
+  const sequence: string[] = [];
+  let previousRowSignature = "";
 
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    state = (state * 1664525 + 1013904223) >>> 0;
-    const j = state % (i + 1);
-    const temp = shuffled[i];
-    shuffled[i] = shuffled[j];
-    shuffled[j] = temp;
+  for (let rowStart = 0; rowStart < tags.length; rowStart += rowSize) {
+    const shuffled = [...palette];
+    let state = (baseSeed ^ rowStart) || 1;
+
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      const j = state % (i + 1);
+      const temp = shuffled[i];
+      shuffled[i] = shuffled[j];
+      shuffled[j] = temp;
+    }
+
+    const rowSignature = shuffled.join("|");
+    if (rowSignature === previousRowSignature) {
+      shuffled.push(shuffled.shift()!);
+    }
+    previousRowSignature = shuffled.join("|");
+
+    const rowLength = Math.min(rowSize, tags.length - rowStart);
+    for (let offset = 0; offset < rowLength; offset += 1) {
+      sequence.push(shuffled[offset]);
+    }
   }
 
-  return tags.map((_, index) => shuffled[index % shuffled.length]);
+  return sequence;
 }
 
 function getStickerTextClass(tag: string) {
