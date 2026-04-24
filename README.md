@@ -207,6 +207,34 @@ Run it from:
 
 - GitHub -> Actions -> `Deploy Cloudflare Worker` -> `Run workflow`
 
+## Low-Traffic Testing and Release Workflow
+
+To keep production request usage very low during patching, follow this sequence:
+
+1. Test locally only:
+
+```bash
+npm run preflight
+```
+
+2. Deploy once:
+
+```bash
+npm run deploy:cf
+```
+
+3. Run one lightweight production smoke check (5 requests total):
+
+```bash
+npm run smoke:prod
+```
+
+Notes:
+
+- Playwright smoke tests default to `http://localhost:3000`, so they do not hit production unless you override `PLAYWRIGHT_BASE_URL`.
+- `wrangler.jsonc` now sets `workers_dev=false` and `preview_urls=false` to avoid accidental traffic to public preview endpoints.
+- Frequent code pushes themselves do not consume meaningful runtime traffic; production requests from users and repeated manual browsing are what count.
+
 ## Launch Playbook (Guided)
 
 Use this sequence to go live quickly.

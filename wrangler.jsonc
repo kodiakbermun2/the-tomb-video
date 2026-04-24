@@ -2,6 +2,8 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "the-tomb-video-storefront",
   "main": ".open-next/worker.js",
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2026-04-24",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
