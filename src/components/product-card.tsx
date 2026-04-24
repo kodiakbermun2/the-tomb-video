@@ -37,6 +37,7 @@ export function ProductCard({ product, dense = false, rareBadgeVariant = "catalo
     rareBadgeVariant === "arrivals"
       ? { right: "-0.75rem", top: "-1rem" }
       : { right: "-0.55rem", top: "-0.65rem" };
+  const showNewSticker = ownershipBadge === "NEW" && !outOfPrint;
 
   return (
     <Link
@@ -51,6 +52,14 @@ export function ProductCard({ product, dense = false, rareBadgeVariant = "catalo
           style={{ position: "absolute", ...rareBadgePosition }}
         >
           Rare!
+        </span>
+      ) : null}
+      {showNewSticker ? (
+        <span
+          className={`pointer-events-none vhs-sticker-btn vhs-sticker-acid absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
+          style={{ position: "absolute", ...rareBadgePosition }}
+        >
+          New!
         </span>
       ) : null}
       <div className={`relative aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-zinc-900 ${dense ? "mb-2" : "mb-3"}`}>

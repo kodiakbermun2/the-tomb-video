@@ -1,4 +1,5 @@
 import { Product } from "@/lib/shopify/types";
+import { parseProductDescription } from "@/lib/product-metadata";
 
 const FORMAT_KEYWORDS = [
   "vhs",
@@ -45,10 +46,12 @@ export function getSortableTitle(title: string) {
 }
 
 export function getProductFormats(product: Product) {
+  const parsed = parseProductDescription(product);
   const searchCorpus = [
     product.title,
-    product.description,
+    product.productType,
     ...(product.tags ?? []),
+    parsed.mediaType,
   ]
     .join(" ")
     .toLowerCase();
