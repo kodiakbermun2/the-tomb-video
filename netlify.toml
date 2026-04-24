@@ -7,3 +7,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+[context.production]
+  # Netlify runs production deploys for main-branch pushes.
+  # Only allow production deploys when commit message includes [deploy] or [release].
+  ignore = "if printf '%s' \"$COMMIT_MESSAGE\" | grep -Eiq '\\[deploy\\]|\\[release\\]'; then echo 'Release marker found. Running production deploy.'; exit 1; fi; echo 'Skipping production deploy to protect monthly credits. Add [deploy] to commit message when ready.'; exit 0"

@@ -87,12 +87,27 @@ function validateCsrfToken(request: NextRequest) {
   }
 }
 
+function isAllowedOrigin(request: NextRequest, origin: string) {
+  try {
+    const originUrl = new URL(origin);
+    const candidateHosts = [
+      request.nextUrl.host,
+      request.headers.get("host"),
+      request.headers.get("x-forwarded-host"),
+    ].filter((value): value is string => Boolean(value));
+
+    return candidateHosts.includes(originUrl.host);
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     enforceRateLimit(request);
 
     const origin = request.headers.get("origin");
-    if (origin && origin !== request.nextUrl.origin) {
+    if (origin && !isAllowedOrigin(request, origin)) {
       return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
     }
 

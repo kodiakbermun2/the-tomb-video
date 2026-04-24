@@ -50,6 +50,38 @@ npm run lint
 npm run build
 ```
 
+## Emergency Live Storefront Launcher (No Netlify/Vercel)
+
+If managed hosting is paused, you can bring the storefront online from your own machine with one command.
+
+Run from project root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-live-storefront.ps1
+```
+
+What it does:
+
+- Runs a production build
+- Opens one window for `npm run start -- -p 4000`
+- Opens one window for a Cloudflare quick tunnel to `http://localhost:4000`
+
+Optional flags:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-live-storefront.ps1 -SkipBuild
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-live-storefront.ps1 -Port 4100
+```
+
+Windows convenience:
+
+- Double-click `scripts/start-live-storefront.cmd`
+
+To stop the live site, close both spawned PowerShell windows.
+
 ## Prelaunch Hosting (Netlify)
 
 1. Push this repo to GitHub.
@@ -69,6 +101,94 @@ npm run build
 5. Connect your custom domain to Netlify and use that as the public storefront URL.
 
 `netlify.toml` is included so this is ready before launch day.
+
+## Credit-Safe Netlify Deploy Workflow
+
+This repository is configured to avoid accidental production deploy churn.
+
+- Production deploys are now opt-in.
+- A production deploy only runs when the commit message includes `[deploy]` or `[release]`.
+- Normal fix commits to `main` will be skipped by Netlify production deploy logic.
+
+Examples:
+
+```bash
+git commit -m "Collections cleanup [deploy]"
+git push origin main
+```
+
+```bash
+git commit -m "Fix product metadata parsing"
+git push origin main
+```
+
+The first commit triggers a production deploy. The second commit does not.
+
+If you want zero production deploys from git pushes, set this in Netlify UI as well:
+
+- Site settings -> Build & deploy -> Continuous Deployment -> Build status -> Stop builds
+
+Then use manual deploys from a tested commit when you are ready.
+
+## Cloudflare Free Tier (Always-On) Deployment
+
+This project is configured to deploy to Cloudflare Workers on the free plan using OpenNext.
+
+### One-Time Setup
+
+1. Create a free Cloudflare account.
+2. In this repo, install dependencies:
+
+```bash
+npm install
+```
+
+3. Log in Wrangler locally:
+
+```bash
+npx wrangler login
+```
+
+### Required Cloudflare Environment Variables
+
+In Cloudflare dashboard for this Worker, set these production variables/secrets:
+
+- `SHOPIFY_STORE_DOMAIN`
+- `SHOPIFY_STOREFRONT_ACCESS_TOKEN`
+- `NEXT_PUBLIC_SITE_URL` (start with your workers.dev or pages.dev URL, then update to custom domain later)
+- `NEXT_PUBLIC_SHOW_PLACEHOLDER_RACK=false`
+
+Recommended commands (run once):
+
+```bash
+npx wrangler secret put SHOPIFY_STORE_DOMAIN
+npx wrangler secret put SHOPIFY_STOREFRONT_ACCESS_TOKEN
+npx wrangler secret put NEXT_PUBLIC_SITE_URL
+```
+
+```bash
+npx wrangler secret put NEXT_PUBLIC_SHOW_PLACEHOLDER_RACK
+```
+
+### Deploy (Free, Always-On)
+
+```bash
+npm run deploy:cf
+```
+
+After deployment, Cloudflare gives a stable `*.workers.dev` URL that stays online without your computer running.
+
+### Preview Cloudflare Runtime Locally (Optional)
+
+```bash
+npm run preview
+```
+
+### Keep Your Current Frontend + Shopify Backend
+
+- Frontend remains this custom Next.js storefront.
+- Product, cart, and checkout data continue to come from Shopify.
+- Checkout remains Shopify-hosted and secure.
 
 ## Launch Playbook (Guided)
 
