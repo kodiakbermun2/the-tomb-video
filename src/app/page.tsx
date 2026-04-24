@@ -78,7 +78,10 @@ export default async function Home({ searchParams }: HomePageProps) {
   };
 
   return (
-    <div className="pb-8">
+    <div className="relative pb-8">
+      <p className="pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-lime-300 sm:text-xs">
+        Free shipping on orders over $70
+      </p>
       <section className="noise-panel stagger-in relative overflow-hidden rounded-xl px-4 py-8 sm:px-8 sm:py-10">
         <div>
           <p className="mb-3 text-xs uppercase tracking-[0.28em] text-lime-300/90">

@@ -46,7 +46,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/cart"
-            className="rounded-full border border-lime-300/60 bg-lime-300/10 px-2.5 py-1.5 text-[11px] tracking-[0.12em] transition-colors hover:bg-lime-300/20 sm:px-3 sm:text-inherit sm:tracking-[0.18em]"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-lime-300/60 bg-lime-300/10 px-2.5 text-center text-[11px] tracking-[0.12em] transition-colors hover:bg-lime-300/20 sm:h-auto sm:px-3 sm:text-inherit sm:tracking-[0.18em]"
           >
             Cart ({visibleTotalItems})
           </Link>

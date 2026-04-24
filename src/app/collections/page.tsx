@@ -28,6 +28,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Adventure",
       "Drama",
       "Fantasy",
+      "Kids",
     ],
   },
   {
@@ -41,6 +42,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Dracula",
       "Charles Band",
       "Dario Argento",
+      "Hanna-Barbera",
     ],
   },
   {
@@ -49,7 +51,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Publisher",
-    tags: ["Playboy Press", "Dover"],
+    tags: ["Playboy Press", "Dover", "Scholastic"],
   },
   {
     title: "Region",
@@ -57,7 +59,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Series",
-    tags: ["Mad Max", "Godzilla"],
+    tags: ["Mad Max", "Godzilla", "Scooby-Doo"],
   },
   {
     title: "Studio",
@@ -70,9 +72,9 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Mill Creek Entertainment",
       "MCA Home Video",
       "RLJE Films",
-      "Playboy Press",
       "Legendary Pictures",
       "Warner Bros.",
+      "Vidmark Entertainment",
     ],
   },
   {
@@ -86,6 +88,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Full Moon Features",
       "Scorpion",
       "Severin",
+      "Code Red",
     ],
   },
   {
@@ -106,11 +109,22 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Ghosts",
       "Sharks",
       "Supernatural",
+      "Bigfoot",
     ],
   },
   {
     title: "Era",
-    tags: ["2000s Films", "2010s Films", "'00s Films", "'60s Films", "'70s Films", "'80s Films", "'90s Films", "'70s Books"],
+    tags: [
+      "2000s Films",
+      "2010s Films",
+      "2000s Books",
+      "'00s Films",
+      "'60s Films",
+      "'70s Films",
+      "'80s Films",
+      "'90s Films",
+      "'70s Books",
+    ],
   },
 ];
 
