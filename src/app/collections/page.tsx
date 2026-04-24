@@ -16,27 +16,48 @@ export const metadata: Metadata = {
 const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   {
     title: "Genre",
-    tags: ["Horror", "Comedy", "Crime", "Thriller", "Action", "Mystery", "Sci-Fi", "Suspense"],
+    tags: [
+      "Horror",
+      "Comedy",
+      "Crime",
+      "Thriller",
+      "Action",
+      "Mystery",
+      "Sci-Fi",
+      "Suspense",
+      "Adventure",
+      "Drama",
+      "Fantasy",
+    ],
   },
   {
     title: "Personalities",
-    tags: ["Alfred Hitchcock", "George Romero", "Jerry Goldsmith", "Lucio Fulci", "Elvira", "Dracula", "Charles Band"],
+    tags: [
+      "Alfred Hitchcock",
+      "George Romero",
+      "Jerry Goldsmith",
+      "Lucio Fulci",
+      "Elvira",
+      "Dracula",
+      "Charles Band",
+      "Dario Argento",
+    ],
   },
   {
     title: "Format",
-    tags: ["Paperback", "Soundtrack"],
+    tags: ["Paperback", "Soundtrack", "Short Stories"],
   },
   {
     title: "Publisher",
-    tags: ["Playboy Press"],
+    tags: ["Playboy Press", "Dover"],
   },
   {
     title: "Region",
-    tags: ["Indonesian", "Italian", "Ozploitation"],
+    tags: ["Indonesian", "Italian", "Ozploitation", "French"],
   },
   {
     title: "Series",
-    tags: ["Mad Max"],
+    tags: ["Mad Max", "Godzilla"],
   },
   {
     title: "Studio",
@@ -50,11 +71,22 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "MCA Home Video",
       "RLJE Films",
       "Playboy Press",
+      "Legendary Pictures",
+      "Warner Bros.",
     ],
   },
   {
     title: "Label",
-    tags: ["Shout! Factory", "Scream Factory", "Blue Underground", "Mondo Macabro", "Criterion", "Full Moon Features"],
+    tags: [
+      "Shout! Factory",
+      "Scream Factory",
+      "Blue Underground",
+      "Mondo Macabro",
+      "Criterion",
+      "Full Moon Features",
+      "Scorpion",
+      "Severin",
+    ],
   },
   {
     title: "Media",
@@ -62,11 +94,23 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Theme",
-    tags: ["Slasher", "Vampires", "Zombies", "Giallo", "Gore", "Clowns", "Bizarre", "Post-Apocalyptic"],
+    tags: [
+      "Slasher",
+      "Vampires",
+      "Zombies",
+      "Giallo",
+      "Gore",
+      "Clowns",
+      "Bizarre",
+      "Post-Apocalyptic",
+      "Ghosts",
+      "Sharks",
+      "Supernatural",
+    ],
   },
   {
     title: "Era",
-    tags: ["'00s Films", "'60s Films", "'70s Films", "'80s Films", "'90s Films", "'70s Books"],
+    tags: ["2000s Films", "2010s Films", "'00s Films", "'60s Films", "'70s Films", "'80s Films", "'90s Films", "'70s Books"],
   },
 ];
 

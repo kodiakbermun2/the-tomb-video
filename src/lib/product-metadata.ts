@@ -16,7 +16,18 @@ type ParsedProductDescription = {
 function normalizeTagKey(value: string) {
   return normalizeWhitespace(value)
     .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[.,;:!?]+$/g, "")
     .toLowerCase();
+}
+
+function canonicalizeTagDisplay(value: string) {
+  const normalized = normalizeTagKey(value);
+
+  if (normalized === "warner bros") {
+    return "Warner Bros.";
+  }
+
+  return value;
 }
 
 function splitTagLine(raw: string) {
@@ -266,7 +277,7 @@ export function getProductTags(product: Product) {
   const unique = new Map<string, string>();
 
   for (const tag of merged) {
-    const normalized = tag.trim();
+    const normalized = canonicalizeTagDisplay(tag.trim());
     if (!normalized) continue;
 
     const key = normalizeTagKey(normalized);

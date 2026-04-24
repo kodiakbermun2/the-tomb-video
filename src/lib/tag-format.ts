@@ -4,6 +4,7 @@ function normalizeTagKey(value: string) {
   return value
     .trim()
     .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[.,;:!?]+$/g, "")
     .replace(/\s+/g, " ")
     .toLowerCase();
 }
@@ -15,6 +16,10 @@ export function getNormalizedTagKey(value: string) {
 export function formatTagDisplay(tag: string) {
   const clean = tag.trim().replace(/\s+/g, " ");
   if (!clean) return clean;
+
+  if (normalizeTagKey(clean) === "warner bros") {
+    return "Warner Bros.";
+  }
 
   return clean
     .split(" ")
