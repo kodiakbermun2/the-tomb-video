@@ -7,12 +7,14 @@ type SortMode = "newest" | "oldest" | "az" | "za" | "priceAsc" | "priceDesc";
 type CatalogControlsProps = {
   query: string;
   selectedFormat: string;
+  excludedFormats: string[];
   formats: string[];
   sortMode: SortMode;
   className?: string;
   onQueryChange: (value: string) => void;
   onSearch: () => void;
   onSelectFormat: (format: string) => void;
+  onExcludeFormat: (format: string) => void;
   onToggleChrono: () => void;
   onToggleAlpha: () => void;
   onTogglePriceSort: () => void;
@@ -21,12 +23,14 @@ type CatalogControlsProps = {
 export function CatalogControls({
   query,
   selectedFormat,
+  excludedFormats,
   formats,
   sortMode,
   className,
   onQueryChange,
   onSearch,
   onSelectFormat,
+  onExcludeFormat,
   onToggleChrono,
   onToggleAlpha,
   onTogglePriceSort,
@@ -76,6 +80,16 @@ export function CatalogControls({
           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-300">
             Filter format
           </div>
+          <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-zinc-400">
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#c9ff37]" aria-hidden="true" />
+              Include (click)
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#fca5a5]" aria-hidden="true" />
+              Exclude (double-click, click to restore)
+            </span>
+          </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -87,18 +101,29 @@ export function CatalogControls({
               Everything
             </button>
             {formats.map((format) => (
-              <button
-                key={format}
-                type="button"
-                onClick={() => onSelectFormat(format)}
-                className={`vhs-sticker-btn min-h-9 px-3 text-[11px] ${
-                  selectedFormat.toLowerCase() === format.toLowerCase()
-                    ? "vhs-sticker-acid"
-                    : "vhs-sticker-cream"
-                }`}
-              >
-                {format}
-              </button>
+              (() => {
+                const normalizedFormat = format.toLowerCase();
+                const isExcluded = excludedFormats.includes(normalizedFormat);
+                const isSelected = selectedFormat.toLowerCase() === normalizedFormat;
+
+                return (
+                  <button
+                    key={format}
+                    type="button"
+                    onClick={() => onSelectFormat(format)}
+                    onDoubleClick={() => onExcludeFormat(format)}
+                    className={`vhs-sticker-btn min-h-9 px-3 text-[11px] ${
+                      isExcluded
+                        ? "border-red-300/85 bg-red-200 !text-black"
+                        : isSelected
+                          ? "vhs-sticker-acid"
+                          : "vhs-sticker-cream"
+                    }`}
+                  >
+                    {format}
+                  </button>
+                );
+              })()
             ))}
           </div>
         </div>

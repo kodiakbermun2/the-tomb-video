@@ -1,16 +1,42 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "the-tomb-video-storefront",
-  "main": ".open-next/worker.js",
-  "workers_dev": false,
-  "preview_urls": false,
-  "compatibility_date": "2026-04-24",
-  "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "observability": {
-    "enabled": true
-  }
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "the-tomb-video-storefront",
+	"main": ".open-next/worker.js",
+	"workers_dev": false,
+	"preview_urls": false,
+	"compatibility_date": "2026-04-24",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"ratelimits": [
+		{
+			"name": "CART_RATE_LIMITER",
+			"namespace_id": "41001",
+			"simple": {
+				"limit": 120,
+				"period": 60
+			}
+		},
+		{
+			"name": "ADMIN_RATE_LIMITER",
+			"namespace_id": "41002",
+			"simple": {
+				"limit": 20,
+				"period": 60
+			}
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "THUMBNAIL_OVERRIDES_KV",
+			"id": "25fe7c96a9e949bc9bf87669d01542c9"
+		}
+	]
 }

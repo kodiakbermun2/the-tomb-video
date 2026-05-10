@@ -1,6 +1,10 @@
 export const PRODUCTS_QUERY = `#graphql
-  query Products($first: Int!) {
-    products(first: $first, sortKey: UPDATED_AT, reverse: true) {
+  query Products($first: Int!, $after: String) {
+    products(first: $first, after: $after, sortKey: UPDATED_AT, reverse: true) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       nodes {
         id
         handle
@@ -166,6 +170,7 @@ export const PRODUCT_BY_HANDLE_QUERY = `#graphql
           id
           title
           availableForSale
+          quantityAvailable
           price {
             amount
             currencyCode

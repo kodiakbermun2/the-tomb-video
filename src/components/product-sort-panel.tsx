@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { getSortableTitle } from "@/lib/catalog";
 import { Product } from "@/lib/shopify/types";
+import { type ThumbnailOverrideMap } from "@/lib/thumbnail-overrides";
 import { ProductGrid } from "./product-grid";
 
 type SortMode = "newest" | "oldest" | "az" | "za" | "priceAsc" | "priceDesc";
@@ -10,9 +11,14 @@ type SortMode = "newest" | "oldest" | "az" | "za" | "priceAsc" | "priceDesc";
 type ProductSortPanelProps = {
   products: Product[];
   emptyMessage?: string;
+  thumbnailOverrides?: ThumbnailOverrideMap;
 };
 
-export function ProductSortPanel({ products, emptyMessage }: ProductSortPanelProps) {
+export function ProductSortPanel({
+  products,
+  emptyMessage,
+  thumbnailOverrides,
+}: ProductSortPanelProps) {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
 
   const sortedProducts = useMemo(() => {
@@ -132,7 +138,11 @@ export function ProductSortPanel({ products, emptyMessage }: ProductSortPanelPro
         </div>
       </div>
 
-      <ProductGrid products={sortedProducts} emptyMessage={emptyMessage} />
+      <ProductGrid
+        products={sortedProducts}
+        emptyMessage={emptyMessage}
+        thumbnailOverrides={thumbnailOverrides}
+      />
     </>
   );
 }

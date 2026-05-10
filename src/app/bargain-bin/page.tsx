@@ -3,6 +3,7 @@ import { CatalogShell } from "@/components/catalog-shell";
 import { getAvailableFormats } from "@/lib/catalog";
 import { getProducts } from "@/lib/shopify";
 import { Product } from "@/lib/shopify/types";
+import { getThumbnailOverridesForHandles } from "@/lib/thumbnail-overrides";
 
 export const revalidate = 120;
 export const metadata: Metadata = {
@@ -30,14 +31,17 @@ export default async function BargainBinPage({ searchParams }: BargainBinPagePro
   const query = resolvedSearchParams.q ?? "";
   const format = resolvedSearchParams.format ?? "";
 
-  const products = await getProducts(250);
+  const products = await getProducts();
+  const thumbnailOverrides = await getThumbnailOverridesForHandles(
+    products.map((product) => product.handle),
+  );
   const bargainProducts = products.filter((product) => getPrice(product) <= 5);
   const formats = getAvailableFormats(bargainProducts);
 
   return (
     <section className="pb-8">
       <header className="noise-panel rounded-lg p-5 sm:p-7">
-        <p className="text-xs uppercase tracking-[0.24em] text-sky-200">Budget picks</p>
+        <p className="text-sm uppercase tracking-[0.24em] text-lime-300/95">Budget picks</p>
         <h1 className="tomb-title mt-2 text-5xl leading-[0.9] sm:text-6xl">BARGAIN BIN</h1>
         <p className="tomb-subtle mt-3 max-w-2xl text-sm sm:text-base">
           Every title in this section is priced at $5.00 or less.
@@ -51,6 +55,7 @@ export default async function BargainBinPage({ searchParams }: BargainBinPagePro
         initialFormat={format}
         sectionId="bargain-bin-catalog"
         sectionTitle="Bargain Bin"
+        thumbnailOverrides={thumbnailOverrides}
       />
     </section>
   );

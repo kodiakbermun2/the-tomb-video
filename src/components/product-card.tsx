@@ -3,18 +3,27 @@ import Link from "next/link";
 import { getProductFormats } from "@/lib/catalog";
 import { formatMoney } from "@/lib/format";
 import { getMediaChipClass } from "@/lib/media-chip";
-import { getOwnershipBadge, isOutOfPrint } from "@/lib/product-metadata";
+import { type ProductStickerKind, resolveProductStickerSlots } from "@/lib/product-stickers";
+import { getOwnershipBadge, isRareItem, isStaffPickItem } from "@/lib/product-metadata";
 import { getShopifyImageUrl } from "@/lib/shopify/image";
 import { Product } from "@/lib/shopify/types";
+import { getThumbnailStyle, type ThumbnailOverride } from "@/lib/thumbnail-overrides";
 
 type ProductCardProps = {
   product: Product;
   dense?: boolean;
   rareBadgeVariant?: "catalog" | "arrivals";
   eagerImage?: boolean;
+  thumbnailOverride?: ThumbnailOverride | null;
 };
 
-export function ProductCard({ product, dense = false, rareBadgeVariant = "catalog", eagerImage = false }: ProductCardProps) {
+export function ProductCard({
+  product,
+  dense = false,
+  rareBadgeVariant = "catalog",
+  eagerImage = false,
+  thumbnailOverride = null,
+}: ProductCardProps) {
   const image = product.featuredImage ?? product.images.nodes[0] ?? null;
   const variant = product.variants.nodes[0];
   const price = variant?.price ?? product.priceRange.minVariantPrice;
@@ -23,7 +32,8 @@ export function ProductCard({ product, dense = false, rareBadgeVariant = "catalo
   const imageUrl = image ? getShopifyImageUrl(image.url, 640) : null;
   const formats = getProductFormats(product).slice(0, 2);
   const ownershipBadge = getOwnershipBadge(product);
-  const outOfPrint = isOutOfPrint(product);
+  const isRare = isRareItem(product);
+  const isStaffPick = isStaffPickItem(product);
   const available = product.availableForSale ?? product.variants.nodes.some((entry) => entry.availableForSale);
   const ownershipChipClass =
     ownershipBadge === "NEW"
@@ -37,7 +47,70 @@ export function ProductCard({ product, dense = false, rareBadgeVariant = "catalo
     rareBadgeVariant === "arrivals"
       ? { right: "-0.75rem", top: "-1rem" }
       : { right: "-0.55rem", top: "-0.65rem" };
-  const showNewSticker = ownershipBadge === "NEW" && !outOfPrint;
+  const { rightSticker, leftSticker } = resolveProductStickerSlots({
+    isRare,
+    isStaffPick,
+    ownershipBadge,
+  });
+  const thumbnailStyle = getThumbnailStyle(thumbnailOverride);
+  const shouldApplyZoom = Math.abs(thumbnailStyle.zoom - 1) > 0.001;
+
+  const renderSticker = (sticker: ProductStickerKind | null, corner: "left" | "right") => {
+    if (!sticker) {
+      return null;
+    }
+
+    const commonClass =
+      `pointer-events-none vhs-sticker-btn absolute z-10 p-0 !text-black ${rareBadgeClass}`;
+    const cornerClass = corner === "right" ? "rotate-[10deg]" : "-rotate-[10deg]";
+    const cornerStyle =
+      corner === "right"
+        ? { position: "absolute" as const, ...rareBadgePosition }
+        : {
+            position: "absolute" as const,
+            left:
+              rareBadgeVariant === "arrivals"
+                ? "-0.75rem"
+                : "-0.55rem",
+            top:
+              rareBadgeVariant === "arrivals"
+                ? "-1rem"
+                : "-0.65rem",
+          };
+
+    if (sticker === "new") {
+      return (
+        <span
+          className={`${commonClass} vhs-sticker-acid ${cornerClass} uppercase tracking-[0.12em]`}
+          style={cornerStyle}
+        >
+          New!
+        </span>
+      );
+    }
+
+    if (sticker === "rare") {
+      return (
+        <span
+          className={`${commonClass} vhs-sticker-pink ${cornerClass} uppercase tracking-[0.12em]`}
+          style={cornerStyle}
+        >
+          Rare!
+        </span>
+      );
+    }
+
+    return (
+      <span
+        className={`${commonClass} vhs-sticker-orange ${cornerClass} text-center uppercase leading-[0.9] tracking-[0.07em]`}
+        style={cornerStyle}
+      >
+        Staff
+        <br />
+        Pick
+      </span>
+    );
+  };
 
   return (
     <Link
@@ -46,22 +119,8 @@ export function ProductCard({ product, dense = false, rareBadgeVariant = "catalo
         dense ? "p-2" : "p-2.5"
       }`}
     >
-      {outOfPrint ? (
-        <span
-          className={`pointer-events-none vhs-sticker-btn vhs-sticker-pink absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
-          style={{ position: "absolute", ...rareBadgePosition }}
-        >
-          Rare!
-        </span>
-      ) : null}
-      {showNewSticker ? (
-        <span
-          className={`pointer-events-none vhs-sticker-btn vhs-sticker-acid absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
-          style={{ position: "absolute", ...rareBadgePosition }}
-        >
-          New!
-        </span>
-      ) : null}
+      {renderSticker(leftSticker, "left")}
+      {renderSticker(rightSticker, "right")}
       <div className={`relative aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-zinc-900 ${dense ? "mb-2" : "mb-3"}`}>
         {image ? (
           <Image
@@ -72,7 +131,20 @@ export function ProductCard({ product, dense = false, rareBadgeVariant = "catalo
             priority={eagerImage}
             loading={eagerImage ? "eager" : "lazy"}
             fetchPriority={eagerImage ? "high" : "auto"}
-            className="object-cover transition duration-500 group-hover:scale-[1.04]"
+            className={`object-cover transition duration-500 ${
+              shouldApplyZoom ? "" : "group-hover:scale-[1.04]"
+            }`}
+            style={
+              shouldApplyZoom
+                ? {
+                    objectPosition: thumbnailStyle.objectPosition,
+                    transform: `scale(${thumbnailStyle.zoom})`,
+                    transformOrigin: "center center",
+                  }
+                : {
+                    objectPosition: thumbnailStyle.objectPosition,
+                  }
+            }
           />
         ) : (
           <div className="grid h-full place-items-center text-center text-xs uppercase tracking-[0.18em] text-zinc-500">

@@ -17,24 +17,24 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4">
         <div className="min-w-0">
-          <Link href="/" className="tomb-title block text-3xl font-black leading-none tracking-[0.12em] sm:text-6xl sm:tracking-[0.16em]">
+          <Link href="/" className="tomb-title site-logo-glow block text-3xl font-black leading-none tracking-[0.12em] sm:text-6xl sm:tracking-[0.16em]">
             The Tomb Video
           </Link>
-          <p className="mt-1 max-w-xl text-[9px] leading-tight uppercase tracking-[0.15em] text-zinc-400 sm:text-[10px] sm:tracking-[0.2em]">
+          <p className="mt-1 max-w-full whitespace-nowrap text-[7px] leading-tight uppercase tracking-[0.08em] text-zinc-400 sm:max-w-xl sm:text-[10px] sm:tracking-[0.2em]">
             Horror, sci-fi, cult films, vintage, physical media, used & new
           </p>
         </div>
 
         <nav className="flex w-full items-center justify-between gap-2 text-xs uppercase tracking-[0.18em] sm:w-auto sm:justify-start sm:gap-3 sm:text-[11px]">
           <Link
-            href="/"
-            className="vhs-sticker-btn vhs-sticker-cream h-10 px-3 py-0 text-center text-[9px] leading-none sm:h-20 sm:w-20 sm:px-0 sm:text-[10px]"
+            href="/#catalog"
+            className="vhs-sticker-btn vhs-sticker-orange h-10 px-3 py-0 text-center text-[9px] leading-none sm:h-20 sm:w-20 sm:px-0 sm:text-[10px]"
           >
             Catalog
           </Link>
           <Link
             href="/collections"
-            className="vhs-sticker-btn vhs-sticker-acid h-10 px-3 py-0 text-center text-[9px] leading-none sm:h-20 sm:w-20 sm:px-0 sm:text-[9px]"
+            className="vhs-sticker-btn vhs-sticker-acid h-10 px-3 py-0 text-center text-[8px] leading-none sm:h-20 sm:w-20 sm:px-0 sm:text-[9px]"
           >
             Collections
           </Link>
@@ -43,6 +43,12 @@ export function SiteHeader() {
             className="vhs-sticker-btn h-10 px-3 py-0 text-center text-[10px] leading-none border-sky-300/85 bg-sky-300 !text-black sm:h-20 sm:w-20 sm:px-0 sm:text-[11px]"
           >
             Bargain Bin
+          </Link>
+          <Link
+            href="/about"
+            className="vhs-sticker-btn h-10 px-3 py-0 text-center text-[10px] leading-none border-white/90 bg-white !text-black sm:h-20 sm:w-20 sm:px-0 sm:text-[11px]"
+          >
+            About Us
           </Link>
           <Link
             href="/cart"

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ProductBackButton } from "@/components/product-back-button";
 import { ProductSortPanel } from "@/components/product-sort-panel";
 import { getCollectionByHandle } from "@/lib/shopify";
+import { getThumbnailOverridesForHandles } from "@/lib/thumbnail-overrides";
 
 type CollectionPageProps = {
   params: Promise<{ handle: string }>;
@@ -34,6 +35,9 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   }
 
   const products = collection.products?.nodes ?? [];
+  const thumbnailOverrides = await getThumbnailOverridesForHandles(
+    products.map((product) => product.handle),
+  );
 
   return (
     <section className="relative pb-8">
@@ -51,7 +55,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         </p>
       </header>
 
-      <ProductSortPanel products={products} />
+      <ProductSortPanel products={products} thumbnailOverrides={thumbnailOverrides} />
     </section>
   );
 }

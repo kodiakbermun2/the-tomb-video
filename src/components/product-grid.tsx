@@ -1,4 +1,5 @@
 import { Product } from "@/lib/shopify/types";
+import { type ThumbnailOverrideMap } from "@/lib/thumbnail-overrides";
 import { ProductCard } from "./product-card";
 
 type ProductGridProps = {
@@ -9,6 +10,7 @@ type ProductGridProps = {
   columnsClassName?: string;
   rareBadgeVariant?: "catalog" | "arrivals";
   eagerImageCount?: number;
+  thumbnailOverrides?: ThumbnailOverrideMap;
 };
 
 export function ProductGrid({
@@ -19,6 +21,7 @@ export function ProductGrid({
   columnsClassName,
   rareBadgeVariant = "catalog",
   eagerImageCount = 0,
+  thumbnailOverrides,
 }: ProductGridProps) {
   const sectionClassName = className ?? "mt-8";
   const resolvedColumnsClassName =
@@ -52,6 +55,7 @@ export function ProductGrid({
             dense={dense}
             rareBadgeVariant={rareBadgeVariant}
             eagerImage={index < eagerImageCount}
+            thumbnailOverride={thumbnailOverrides?.[product.handle.toLowerCase()] ?? null}
           />
         ))}
       </div>

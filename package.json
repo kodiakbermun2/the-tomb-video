@@ -13,7 +13,8 @@
     "preflight": "npm run lint && npm run build && npm run test:smoke",
     "test:smoke": "playwright test",
     "test:smoke:headed": "playwright test --headed",
-    "smoke:prod": "node scripts/smoke-prod.mjs"
+    "smoke:prod": "node scripts/smoke-prod.mjs",
+    "monitor:prod": "node scripts/monitor-prod.mjs"
   },
   "dependencies": {
     "next": "16.2.4",

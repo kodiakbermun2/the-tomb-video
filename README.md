@@ -155,20 +155,52 @@ In Cloudflare dashboard for this Worker, set these production variables/secrets:
 
 - `SHOPIFY_STORE_DOMAIN`
 - `SHOPIFY_STOREFRONT_ACCESS_TOKEN`
+- `SHOPIFY_CLIENT_ID` (recommended: enables automatic token refresh)
+- `SHOPIFY_CLIENT_SECRET` (recommended: enables automatic token refresh)
 - `NEXT_PUBLIC_SITE_URL` (start with your workers.dev or pages.dev URL, then update to custom domain later)
 - `NEXT_PUBLIC_SHOW_PLACEHOLDER_RACK=false`
+- `THUMBNAIL_ADMIN_KEY` (required for permanent thumbnail override edits)
+- `MONITORING_CRON_KEY` (required for authenticated token-health checks)
 
 Recommended commands (run once):
 
 ```bash
 npx wrangler secret put SHOPIFY_STORE_DOMAIN
 npx wrangler secret put SHOPIFY_STOREFRONT_ACCESS_TOKEN
+npx wrangler secret put SHOPIFY_CLIENT_ID
+npx wrangler secret put SHOPIFY_CLIENT_SECRET
 npx wrangler secret put NEXT_PUBLIC_SITE_URL
 ```
 
 ```bash
 npx wrangler secret put NEXT_PUBLIC_SHOW_PLACEHOLDER_RACK
+npx wrangler secret put THUMBNAIL_ADMIN_KEY
+npx wrangler secret put MONITORING_CRON_KEY
 ```
+
+### Cloudflare Edge Rate Limiting
+
+`wrangler.jsonc` now defines two edge rate limit bindings:
+
+- `CART_RATE_LIMITER` for `/api/cart`
+- `ADMIN_RATE_LIMITER` for `/api/admin/thumbnail-overrides`
+
+These limits are enforced directly in route handlers via Cloudflare's Rate Limiting binding, with an in-process fallback for local/dev runtimes.
+
+If your account already uses `namespace_id` values `41001` or `41002`, replace them with unique integer string IDs before deploy.
+
+### Persistent Thumbnail Override Admin
+
+Permanent thumbnail edits are available at `/admin/thumbnails`.
+
+How it works:
+
+- The page lets you pick a product handle and adjust crop (`x`, `y`) and `zoom`.
+- Save writes to the Cloudflare KV binding `THUMBNAIL_OVERRIDES_KV`.
+- The saved override is applied globally for all visitors (home/catalog cards plus product-page carousels).
+- Writes are protected by the `x-admin-key` header, validated against `THUMBNAIL_ADMIN_KEY`.
+
+If `THUMBNAIL_ADMIN_KEY` is not configured, admin writes are rejected.
 
 ### Deploy (Free, Always-On)
 
@@ -202,10 +234,38 @@ In GitHub repository settings, add these Actions secrets:
 - `SHOPIFY_STOREFRONT_ACCESS_TOKEN`
 - `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_SHOW_PLACEHOLDER_RACK` (set to `false`)
+- `MONITORING_CRON_KEY`
+
+Optional for monitoring alerts:
+
+- `SITE_URL` (for the monitor workflow target, e.g. `https://www.thetombvideo.com`)
+- `ALERT_WEBHOOK_URL` (Slack/Discord-style incoming webhook)
 
 Run it from:
 
 - GitHub -> Actions -> `Deploy Cloudflare Worker` -> `Run workflow`
+
+### Scheduled Uptime + Token Monitoring
+
+This repo includes `.github/workflows/monitor-storefront.yml`.
+
+What it checks every 5 minutes:
+
+- `/`
+- `/collections`
+- `/api/csrf`
+- `/api/admin/token-health` (authenticated with `MONITORING_CRON_KEY`)
+
+Behavior:
+
+- Sends webhook alerts when uptime checks fail.
+- Sends an auth alert on the first Shopify 401/403 transition (spike) detected by `token-health` state tracking.
+
+You can also run the same monitor manually:
+
+```bash
+npm run monitor:prod
+```
 
 ## Low-Traffic Testing and Release Workflow
 

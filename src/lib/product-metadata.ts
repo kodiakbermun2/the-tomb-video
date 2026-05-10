@@ -4,7 +4,10 @@ type ParsedProductDescription = {
   mediaType: string;
   studio: string;
   genres: string[];
+  isFeatured: boolean;
+  isRare: boolean;
   isOutOfPrint: boolean;
+  rarityLabel: "Rare" | "Out of print" | null;
   ownershipLine: string;
   conditionLine: string;
   regionCode: string;
@@ -25,6 +28,14 @@ function canonicalizeTagDisplay(value: string) {
 
   if (normalized === "warner bros") {
     return "Warner Bros.";
+  }
+
+  if (normalized === "columbia") {
+    return "Columbia Pictures";
+  }
+
+  if (normalized === "pocketbook") {
+    return "Pocket Book";
   }
 
   return value;
@@ -79,11 +90,21 @@ function expandInlineMarkers(lines: string[]) {
 
   return lines[0]
     .replace(/\s+(Condition:|Tags?:|Note:|Region(?:\s*Code)?\s*:)/gi, "\n$1")
-    .replace(/\s+(PRE-OWNED|NEW|USED)\b/gi, "\n$1")
+    // Split ownership markers only when they are actual metadata markers, not words
+    // inside studio names like "New Horizons".
+    .replace(/\s+(PRE[- ]?OWNED|USED)\b/gi, "\n$1")
+    .replace(
+      /\s+NEW(?=\s+(?:CONDITION\s*:|TAGS?\s*:|NOTE\s*:|REGION(?:\s*CODE)?\s*[:\-]|https?:\/\/|#)|\s*$)/gi,
+      "\nNEW",
+    )
     .replace(/\s+(https?:\/\/)/gi, "\n$1")
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+export function getDescriptionLines(product: Product) {
+  return expandInlineMarkers(normalizeDescriptionLines(product));
 }
 
 function splitConditionParts(rawConditionValue: string) {
@@ -122,7 +143,22 @@ function splitConditionParts(rawConditionValue: string) {
   return { conditionValue: normalized, remainder: "" };
 }
 
-function parseHeaderLine(line: string) {
+function sanitizeRegionValue(rawRegionValue: string) {
+  const withoutUrls = rawRegionValue.replace(/https?:\/\/\S+/gi, " ");
+  const beforeHashtags = withoutUrls.split(/\s+#/)[0] ?? withoutUrls;
+  const beforeMetadataLabels = beforeHashtags.split(/\s+(?:tags?|condition|note)\s*:/i)[0] ?? beforeHashtags;
+  return normalizeWhitespace(beforeMetadataLabels).replace(/[.,;:!?]+$/g, "");
+}
+
+function parseHeaderLine(line: string): {
+  mediaType: string;
+  studio: string;
+  genres: string[];
+  isFeatured: boolean;
+  isOutOfPrint: boolean;
+  isRare: boolean;
+  rarityLabel: "Rare" | "Out of print" | null;
+} | null {
   const parts = line
     .split(/\s*\/\s*/)
     .map((part) => normalizeWhitespace(part))
@@ -133,6 +169,8 @@ function parseHeaderLine(line: string) {
     return null;
   }
 
+  const markerLine = normalizeTagKey(parts.slice(3).join(" / "));
+
   return {
     mediaType: parts[0] || "",
     studio: parts[1] || "",
@@ -140,19 +178,30 @@ function parseHeaderLine(line: string) {
       .split(",")
       .map((genre) => normalizeWhitespace(genre))
       .filter(Boolean),
-    isOutOfPrint: /\boop\b/i.test(parts[3] || ""),
+    isFeatured: /\bfeatured\b/i.test(markerLine),
+    isOutOfPrint: /\boop\b/i.test(markerLine),
+    isRare: /\boop\b/i.test(markerLine) || /\brare\b/i.test(markerLine),
+    rarityLabel: /\boop\b/i.test(markerLine)
+      ? "Out of print"
+      : /\brare\b/i.test(markerLine)
+        ? "Rare"
+        : null,
   };
 }
 
 export function parseProductDescription(product: Product): ParsedProductDescription {
-  const lines = expandInlineMarkers(normalizeDescriptionLines(product));
+  const lines = getDescriptionLines(product);
+  const ownershipSourceLine = normalizeWhitespace(lines[1] || "");
   const nonTagLines: string[] = [];
   const tags: string[] = [];
   const letterboxdUrls: string[] = [];
   let mediaType = "";
   let studio = "";
   let genres: string[] = [];
+  let isFeatured = false;
+  let isRare = false;
   let isOutOfPrint = false;
+  let rarityLabel: "Rare" | "Out of print" | null = null;
   let ownershipLine = "";
   let conditionLine = "";
   let regionCode = "";
@@ -164,7 +213,14 @@ export function parseProductDescription(product: Product): ParsedProductDescript
     mediaType = parsedHeader.mediaType;
     studio = parsedHeader.studio;
     genres = parsedHeader.genres;
+    isFeatured = parsedHeader.isFeatured;
+    isRare = parsedHeader.isRare;
     isOutOfPrint = parsedHeader.isOutOfPrint;
+    rarityLabel = parsedHeader.rarityLabel;
+  }
+
+  if (/^(PRE-OWNED|NEW|USED)\b/i.test(ownershipSourceLine)) {
+    ownershipLine = ownershipSourceLine;
   }
 
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
@@ -199,14 +255,13 @@ export function parseProductDescription(product: Product): ParsedProductDescript
       continue;
     }
 
-    const tagMatch = scrubbedLine.match(/^tags?\s*:\s*(.+)$/i);
-    if (tagMatch) {
-      tags.push(...splitTagLine(tagMatch[1]));
+    if (/^(PRE[- ]?OWNED|USED|NEW)\b/i.test(scrubbedLine)) {
       continue;
     }
 
-    if (!ownershipLine && /^(PRE-OWNED|NEW|USED)\b/i.test(scrubbedLine)) {
-      ownershipLine = scrubbedLine;
+    const tagMatch = scrubbedLine.match(/^tags?\s*:\s*(.+)$/i);
+    if (tagMatch) {
+      tags.push(...splitTagLine(tagMatch[1]));
       continue;
     }
 
@@ -227,7 +282,7 @@ export function parseProductDescription(product: Product): ParsedProductDescript
 
     const regionCodeMatch = scrubbedLine.match(/^region(?:\s*code)?\s*[:\-]\s*(.+)$/i);
     if (!regionCode && regionCodeMatch) {
-      regionCode = normalizeWhitespace(regionCodeMatch[1]);
+      regionCode = sanitizeRegionValue(regionCodeMatch[1]);
       continue;
     }
 
@@ -243,9 +298,6 @@ export function parseProductDescription(product: Product): ParsedProductDescript
 
   const uniqueTags = Array.from(new Set(tags));
   const uniqueLetterboxdUrls = Array.from(new Set(letterboxdUrls));
-  if (!ownershipLine && nonTagLines.length > 0) {
-    ownershipLine = nonTagLines.shift() || "";
-  }
   if (!conditionLine && nonTagLines.length > 0) {
     conditionLine = nonTagLines.shift() || "";
   }
@@ -255,7 +307,10 @@ export function parseProductDescription(product: Product): ParsedProductDescript
     mediaType,
     studio,
     genres,
+    isFeatured,
+    isRare,
     isOutOfPrint,
+    rarityLabel,
     ownershipLine,
     conditionLine,
     regionCode,
@@ -316,6 +371,18 @@ export function isOutOfPrint(product: Product) {
   return parseProductDescription(product).isOutOfPrint;
 }
 
+export function isRareItem(product: Product) {
+  return parseProductDescription(product).isRare;
+}
+
+export function isStaffPickItem(product: Product) {
+  return parseProductDescription(product).isFeatured;
+}
+
+export function getRarityLabel(product: Product) {
+  return parseProductDescription(product).rarityLabel;
+}
+
 export function getOwnershipBadge(product: Product): "NEW" | "USED" | null {
   const parsed = parseProductDescription(product);
   const ownership = parsed.ownershipLine.trim().toLowerCase();
@@ -325,14 +392,6 @@ export function getOwnershipBadge(product: Product): "NEW" | "USED" | null {
   }
 
   if (ownership.startsWith("used") || ownership.startsWith("pre-owned")) {
-    return "USED";
-  }
-
-  const tagSet = new Set(getProductTags(product).map((tag) => tag.trim().toLowerCase()));
-  if (tagSet.has("new")) {
-    return "NEW";
-  }
-  if (tagSet.has("used") || tagSet.has("pre-owned") || tagSet.has("pre owned")) {
     return "USED";
   }
 

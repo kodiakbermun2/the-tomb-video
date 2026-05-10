@@ -3,14 +3,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { AddToCartButton } from "@/components/add-to-cart-button";
-import { MoreLikeThisCarousel } from "@/components/more-like-this-carousel";
+import { ProductPageRecommendations } from "@/components/product-page-recommendations";
 import { ProductBackButton } from "@/components/product-back-button";
 import { ProductImageCarousel } from "@/components/product-image-carousel";
 import { formatMoney } from "@/lib/format";
 import { getMediaChipClass } from "@/lib/media-chip";
-import { getProductTags, parseProductDescription } from "@/lib/product-metadata";
+import { parseProductDescription } from "@/lib/product-metadata";
 import { getBaseUrl } from "@/lib/site";
 import { getProductByHandle, getProducts } from "@/lib/shopify";
+
+export const revalidate = 120;
 
 type ProductPageProps = {
   params: Promise<{ handle: string }>;
@@ -56,7 +58,7 @@ async function resolveProductFromHandle(rawHandle: string) {
     return null;
   }
 
-  const recentProducts = await getProducts(250);
+  const recentProducts = await getProducts();
   return (
     recentProducts.find((product) => {
       const normalizedHandle = normalizeHandleValue(product.handle);
@@ -103,6 +105,71 @@ function getLetterboxdFilmLabel(url: string) {
   }
 }
 
+function parseRegionCodes(rawRegionCode: string) {
+  const normalized = rawRegionCode
+    .toUpperCase()
+    .replace(/\bAND\b/g, "&")
+    .replace(/&AMP;/g, "&")
+    .replace(/\bREGION\s*/g, "")
+    .replace(/[.,;:!?]+/g, " ")
+    .trim();
+
+  if (!normalized) {
+    return [];
+  }
+
+  const extracted = Array.from(
+    normalized.matchAll(/(?:^|[^A-Z0-9])([A-C]|[0-6])(?=$|[^A-Z0-9])/g),
+    (match) => match[1],
+  );
+
+  return Array.from(new Set(extracted));
+}
+
+function renderRegionBadge(regionCode: string) {
+  if (/^\d$/.test(regionCode)) {
+    return (
+      <span
+        key={`region-${regionCode}`}
+        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-black/40 text-[11px] font-black text-zinc-100"
+      >
+        {regionCode}
+      </span>
+    );
+  }
+
+  if (/^[A-Z]$/.test(regionCode)) {
+    return (
+      <span
+        key={`region-${regionCode}`}
+        className="inline-flex h-8 w-8 items-center justify-center"
+        aria-label={`Region ${regionCode}`}
+      >
+        <svg viewBox="0 0 100 100" className="h-8 w-8" aria-hidden="true">
+          <polygon
+            points="25,8 75,8 96,50 75,92 25,92 4,50"
+            fill="rgba(10,10,10,0.65)"
+            stroke="rgba(255,255,255,0.35)"
+            strokeWidth="4"
+          />
+          <text
+            x="50"
+            y="58"
+            textAnchor="middle"
+            fontSize="34"
+            fontWeight="900"
+            fill="#f4f4f5"
+          >
+            {regionCode}
+          </text>
+        </svg>
+      </span>
+    );
+  }
+
+  return null;
+}
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { handle } = await params;
   const product = await resolveProductFromHandle(handle);
@@ -145,7 +212,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const price = primaryVariant?.price ?? product.priceRange.minVariantPrice;
   const compareAt = primaryVariant?.compareAtPrice;
   const showCompareAt = Boolean(compareAt) && Number(compareAt?.amount || 0) > Number(price.amount);
-  const { mediaType, studio, genres, isOutOfPrint, ownershipLine, conditionLine, regionCode, detailsText, tags, letterboxdUrls } = parseProductDescription(product);
+  const { mediaType, studio, genres, rarityLabel, ownershipLine, conditionLine, regionCode, detailsText, tags, letterboxdUrls } = parseProductDescription(product);
   const metadataMediaType = mediaType || product.productType || "media";
   const metadataStudio = studio || product.vendor || "Unknown Studio";
   const ownershipLower = ownershipLine.trim().toLowerCase();
@@ -154,8 +221,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     : "border-zinc-400/70 bg-zinc-500/30 text-zinc-100";
   const normalizedRegionCode = regionCode.trim();
   const isRegionFree = /(?:region\s*[- ]*free|all\s*[- ]*region)/i.test(normalizedRegionCode);
-  const isRegionNumber = /^\d$/.test(normalizedRegionCode);
-  const isRegionLetter = /^[A-Za-z]$/.test(normalizedRegionCode);
+  const parsedRegionCodes = parseRegionCodes(normalizedRegionCode);
+  const regionBadges = parsedRegionCodes.flatMap((code) => {
+    const badge = renderRegionBadge(code);
+    return badge ? [badge] : [];
+  });
   const hasStructuredDescription = Boolean(
     mediaType ||
       studio ||
@@ -167,55 +237,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
       letterboxdUrls.length > 0,
   );
   const detailsBodyText = detailsText || (!hasStructuredDescription ? product.description : "");
-  const availableQuantity = product.variants.nodes.reduce(
-    (total, variant) => total + Math.max(0, variant.quantityAvailable ?? (variant.availableForSale ? 1 : 0)),
-    0,
-  );
-
-  const allProducts = await getProducts(60);
-  const baseTags = new Set(getProductTags(product).map((tag) => tag.toLowerCase()));
-  const baseTitleTokens = new Set(
-    product.title
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter((token) => token.length >= 4),
-  );
-
-  const relatedProducts = allProducts
-    .filter((candidate) => candidate.id !== product.id)
-    .map((candidate) => {
-      const candidateTags = getProductTags(candidate).map((tag) => tag.toLowerCase());
-      const sharedTagScore = candidateTags.reduce(
-        (score, tag) => score + (baseTags.has(tag) ? 1 : 0),
-        0,
-      );
-
-      const candidateTitleTokens = new Set(
-        candidate.title
-          .toLowerCase()
-          .split(/[^a-z0-9]+/)
-          .filter((token) => token.length >= 4),
-      );
-      let titleTokenTieBreak = 0;
-      for (const token of candidateTitleTokens) {
-        if (baseTitleTokens.has(token)) titleTokenTieBreak += 1;
-      }
-
-      return {
-        candidate,
-        sharedTagScore,
-        titleTokenTieBreak,
-      };
-    })
-    .filter((entry) => entry.sharedTagScore > 0)
-    .sort((a, b) => {
-      if (b.sharedTagScore !== a.sharedTagScore) {
-        return b.sharedTagScore - a.sharedTagScore;
-      }
-      return b.titleTokenTieBreak - a.titleTokenTieBreak;
-    })
-    .slice(0, 12)
-    .map((entry) => entry.candidate);
+  const availableQuantity =
+    primaryVariant?.availableForSale && typeof primaryVariant?.quantityAvailable === "number"
+      ? Math.max(0, primaryVariant.quantityAvailable)
+      : null;
+  const maxPurchasableQuantity = availableQuantity ?? Number.MAX_SAFE_INTEGER;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -277,11 +303,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {primaryVariant?.availableForSale ? "In Stock" : "Sold Out"}
           </span>
           <span className="shop-metadata-chip border-lime-300/55 bg-lime-300/10 text-lime-100">
-            {availableQuantity} available
+            {availableQuantity === null
+              ? "Available now"
+              : `${availableQuantity} in stock`}
           </span>
-          {isOutOfPrint ? (
+          {rarityLabel ? (
             <span className="shop-metadata-chip border-white/80 bg-white !text-black" style={{ color: "#000" }}>
-              Out of print
+              {rarityLabel}
             </span>
           ) : null}
         </div>
@@ -328,31 +356,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <span className="text-zinc-400">Region Code:</span>
               {isRegionFree ? (
                 <span className="shop-metadata-chip">{normalizedRegionCode}</span>
-              ) : isRegionNumber ? (
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-black/40 text-[11px] font-black text-zinc-100">
-                  {normalizedRegionCode}
-                </span>
-              ) : isRegionLetter ? (
-                <span className="inline-flex h-8 w-8 items-center justify-center" aria-label={`Region ${normalizedRegionCode.toUpperCase()}`}>
-                  <svg viewBox="0 0 100 100" className="h-8 w-8" aria-hidden="true">
-                    <polygon
-                      points="25,8 75,8 96,50 75,92 25,92 4,50"
-                      fill="rgba(10,10,10,0.65)"
-                      stroke="rgba(255,255,255,0.35)"
-                      strokeWidth="4"
-                    />
-                    <text
-                      x="50"
-                      y="58"
-                      textAnchor="middle"
-                      fontSize="34"
-                      fontWeight="900"
-                      fill="#f4f4f5"
-                    >
-                      {normalizedRegionCode.toUpperCase()}
-                    </text>
-                  </svg>
-                </span>
+              ) : regionBadges.length > 0 ? (
+                regionBadges
               ) : (
                 <span className="shop-metadata-chip">{normalizedRegionCode}</span>
               )}
@@ -410,7 +415,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               priceAmount={price.amount}
               currencyCode={price.currencyCode}
               availableForSale={primaryVariant.availableForSale}
-              maxQuantity={Math.max(1, availableQuantity)}
+              maxQuantity={maxPurchasableQuantity}
             />
           </div>
         ) : (
@@ -421,7 +426,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
       </article>
 
-      <MoreLikeThisCarousel products={relatedProducts} />
+      <ProductPageRecommendations currentHandle={product.handle} />
     </>
   );
 }

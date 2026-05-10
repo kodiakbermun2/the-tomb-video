@@ -1,17 +1,31 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { getSortableTitle } from "@/lib/catalog";
 import { Product } from "@/lib/shopify/types";
+import { type ThumbnailOverrideMap } from "@/lib/thumbnail-overrides";
 import { ProductGrid } from "./product-grid";
 
 type SortMode = "newest" | "oldest" | "az" | "za" | "priceAsc" | "priceDesc";
 
 type NewArrivalsSectionProps = {
   products: Product[];
+  currentPage: number;
+  totalPages: number;
+  prevPageHref: string | null;
+  nextPageHref: string | null;
+  thumbnailOverrides?: ThumbnailOverrideMap;
 };
 
-export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
+export function NewArrivalsSection({
+  products,
+  currentPage,
+  totalPages,
+  prevPageHref,
+  nextPageHref,
+  thumbnailOverrides,
+}: NewArrivalsSectionProps) {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [pageStart, setPageStart] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -145,9 +159,34 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   };
 
   return (
-    <section className="mt-6 rounded-xl border border-white/10 bg-black/35 p-4 sm:p-5">
+    <section id="new-arrivals" className="mt-6 scroll-mt-32 rounded-xl border border-white/10 bg-black/35 p-4 sm:p-5">
       <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <h2 className="text-sm uppercase tracking-[0.22em] text-zinc-300">New arrivals</h2>
+        <div className="flex flex-col items-start gap-1.5">
+          <h2 className="text-sm uppercase tracking-[0.22em] text-zinc-300">New arrivals</h2>
+          {totalPages > 1 ? (
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-zinc-400">
+              <span>Page {currentPage} of {totalPages}</span>
+              <div className="flex items-center gap-1.5">
+                {prevPageHref ? (
+                  <Link
+                    href={prevPageHref}
+                    className="rounded-full border border-white/30 bg-black/45 px-2 py-1 font-semibold text-zinc-200 transition hover:border-lime-300/70 hover:text-lime-300"
+                  >
+                    Prev set
+                  </Link>
+                ) : null}
+                {nextPageHref ? (
+                  <Link
+                    href={nextPageHref}
+                    className="rounded-full border border-white/30 bg-black/45 px-2 py-1 font-semibold text-zinc-200 transition hover:border-lime-300/70 hover:text-lime-300"
+                  >
+                    Next set
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
         <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em]">
           <button
             type="button"
@@ -185,7 +224,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
         </div>
       </div>
       <div
-        className="relative px-1 sm:px-10"
+        className="relative px-9 sm:px-10"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -194,7 +233,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           onClick={handlePrev}
           disabled={!canGoPrev}
           aria-label="Show previous new arrivals"
-          className="absolute left-1 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white/95 font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:left-0 sm:h-9 sm:w-9"
+          className="absolute left-0 top-1/2 z-40 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white/95 font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:left-0 sm:h-9 sm:w-9"
         >
           &lt;
         </button>
@@ -203,11 +242,16 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           onClick={handleNext}
           disabled={!canGoNext}
           aria-label="Show more new arrivals"
-          className="absolute right-1 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white/95 font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:right-0 sm:h-9 sm:w-9"
+          className="absolute right-0 top-1/2 z-40 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-white/95 font-bold text-black transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:right-0 sm:h-9 sm:w-9"
         >
           &gt;
         </button>
-        <ProductGrid products={visibleProducts} rareBadgeVariant="arrivals" eagerImageCount={1} />
+        <ProductGrid
+          products={visibleProducts}
+          rareBadgeVariant="arrivals"
+          eagerImageCount={1}
+          thumbnailOverrides={thumbnailOverrides}
+        />
       </div>
     </section>
   );

@@ -98,7 +98,7 @@ export default function CartPage() {
           <ProductBackButton />
         </div>
 
-        <div className="noise-panel rounded-lg p-6 sm:p-8">
+        <div className="rounded-xl border border-white/15 bg-black/60 p-6 sm:p-8">
           <h1 className="tomb-title text-4xl">Your cart is empty</h1>
           <p className="tomb-subtle mt-3 text-sm sm:text-base">
             Add an item to continue to checkout.
@@ -126,12 +126,13 @@ export default function CartPage() {
         <ProductBackButton />
       </div>
 
+      <div className="rounded-xl border border-white/15 bg-black/60 p-4 sm:p-5">
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <div className="space-y-3">
           {items.map((item) => (
             <article
               key={item.merchandiseId}
-              className="flex gap-3 rounded-lg border border-white/15 bg-black/55 p-3"
+              className="flex gap-3 rounded-lg border border-white/15 bg-black/45 p-3"
             >
               <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-sm bg-zinc-900">
                 {item.imageUrl ? (
@@ -186,7 +187,7 @@ export default function CartPage() {
           ))}
         </div>
 
-        <aside className="noise-panel h-fit rounded-lg p-5">
+        <aside className="h-fit rounded-xl border border-white/15 bg-black/45 p-5">
           <h2 className="tomb-title text-3xl">Order summary</h2>
           <p className="mt-4 flex items-center justify-between text-sm">
             <span className="text-zinc-300">Items</span>
@@ -215,6 +216,7 @@ export default function CartPage() {
             Clear cart
           </button>
         </aside>
+      </div>
       </div>
     </section>
   );

@@ -7,6 +7,7 @@ import {
   removeCartLine,
   updateCartLineQuantity,
 } from "@/lib/shopify";
+import { EdgeRateLimitError, enforceEdgeRateLimit } from "@/lib/cloudflare-rate-limit";
 
 type CartRequestBody = {
   action: "add" | "get" | "setQuantity" | "remove" | "clear";
@@ -26,12 +27,23 @@ const VALID_ACTIONS = new Set<CartRequestBody["action"]>([
 const CART_ID_PATTERN = /^gid:\/\/shopify\/Cart\/.+/;
 const MERCHANDISE_ID_PATTERN = /^gid:\/\/shopify\/ProductVariant\/.+/;
 const CSRF_COOKIE_NAME = "tomb_csrf_token";
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 120;
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 class ValidationError extends Error {}
-class RateLimitError extends Error {}
+
+function secureCompareString(left: string, right: string) {
+  const leftBytes = new TextEncoder().encode(left);
+  const rightBytes = new TextEncoder().encode(right);
+  const length = Math.max(leftBytes.length, rightBytes.length);
+  let mismatch = leftBytes.length ^ rightBytes.length;
+
+  for (let index = 0; index < length; index += 1) {
+    const leftByte = leftBytes[index] ?? 0;
+    const rightByte = rightBytes[index] ?? 0;
+    mismatch |= leftByte ^ rightByte;
+  }
+
+  return mismatch === 0;
+}
 
 function isSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value);
@@ -51,38 +63,11 @@ function ensureValidId(value: string, pattern: RegExp, label: string) {
   }
 }
 
-function getRateLimitKey(request: NextRequest) {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const clientIp = forwardedFor?.split(",")[0]?.trim() || "unknown-ip";
-  return `${clientIp}:api-cart`;
-}
-
-function enforceRateLimit(request: NextRequest) {
-  const key = getRateLimitKey(request);
-  const now = Date.now();
-  const current = rateLimitStore.get(key);
-
-  if (!current || current.resetAt <= now) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + RATE_LIMIT_WINDOW_MS,
-    });
-    return;
-  }
-
-  if (current.count >= RATE_LIMIT_MAX) {
-    throw new RateLimitError("Too many cart requests. Please retry shortly.");
-  }
-
-  current.count += 1;
-  rateLimitStore.set(key, current);
-}
-
 function validateCsrfToken(request: NextRequest) {
   const headerToken = request.headers.get("x-csrf-token");
   const cookieToken = request.cookies.get(CSRF_COOKIE_NAME)?.value;
 
-  if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+  if (!headerToken || !cookieToken || !secureCompareString(headerToken, cookieToken)) {
     throw new ValidationError("Invalid CSRF token.");
   }
 }
@@ -104,7 +89,14 @@ function isAllowedOrigin(request: NextRequest, origin: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    enforceRateLimit(request);
+    const csrfActorKey = request.cookies.get(CSRF_COOKIE_NAME)?.value;
+    await enforceEdgeRateLimit({
+      request,
+      binding: "CART_RATE_LIMITER",
+      scope: "api-cart",
+      actorHint: csrfActorKey,
+      failureMessage: "Too many cart requests. Please retry shortly.",
+    });
 
     const origin = request.headers.get("origin");
     if (origin && !isAllowedOrigin(request, origin)) {
@@ -210,7 +202,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    if (error instanceof RateLimitError) {
+    if (error instanceof EdgeRateLimitError) {
       return NextResponse.json({ error: message }, { status: 429 });
     }
 

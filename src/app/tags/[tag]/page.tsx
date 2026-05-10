@@ -4,6 +4,7 @@ import { ProductSortPanel } from "@/components/product-sort-panel";
 import { hasExactTag } from "@/lib/product-metadata";
 import { getProducts } from "@/lib/shopify";
 import { formatTagDisplay } from "@/lib/tag-format";
+import { getThumbnailOverridesForHandles } from "@/lib/thumbnail-overrides";
 
 type TagPageProps = {
   params: Promise<{ tag: string }>;
@@ -27,8 +28,11 @@ export default async function TagPage({ params }: TagPageProps) {
   const decodedTag = decodeURIComponent(tag);
   const formattedTag = formatTagDisplay(decodedTag);
 
-  let products = await getProducts(60);
+  let products = await getProducts();
   products = products.filter((product) => hasExactTag(product, decodedTag));
+  const thumbnailOverrides = await getThumbnailOverridesForHandles(
+    products.map((product) => product.handle),
+  );
 
   return (
     <section className="relative pb-8">
@@ -49,6 +53,7 @@ export default async function TagPage({ params }: TagPageProps) {
       <ProductSortPanel
         products={products}
         emptyMessage={`No products are currently tagged as ${decodedTag}.`}
+        thumbnailOverrides={thumbnailOverrides}
       />
     </section>
   );

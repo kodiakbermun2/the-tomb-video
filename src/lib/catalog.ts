@@ -47,17 +47,14 @@ export function getSortableTitle(title: string) {
 
 export function getProductFormats(product: Product) {
   const parsed = parseProductDescription(product);
-  const searchCorpus = [
-    product.title,
-    product.productType,
-    ...(product.tags ?? []),
-    parsed.mediaType,
-  ]
-    .join(" ")
-    .toLowerCase();
+  const mediaType = parsed.mediaType.toLowerCase();
+
+  if (!mediaType) {
+    return [];
+  }
 
   const normalized = FORMAT_KEYWORDS
-    .filter((keyword) => includesFormat(searchCorpus, keyword))
+    .filter((keyword) => includesFormat(mediaType, keyword))
     .map(normalizeFormatLabel);
 
   return Array.from(new Set(normalized));

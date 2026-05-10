@@ -1,0 +1,30 @@
+name: Monitor Storefront
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run uptime + token monitor
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          MONITORING_CRON_KEY: ${{ secrets.MONITORING_CRON_KEY }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+        run: npm run monitor:prod

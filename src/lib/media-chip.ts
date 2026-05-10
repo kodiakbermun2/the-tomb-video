@@ -25,6 +25,10 @@ export function getMediaChipClass(mediaType: string) {
     return "border-violet-300/85 bg-violet-200 !text-black";
   }
 
+  if (normalized.includes("cassette")) {
+    return "border-violet-400/90 bg-violet-300 !text-black";
+  }
+
   if (normalized.includes("book")) {
     return "border-amber-300/90 bg-amber-300 !text-black";
   }

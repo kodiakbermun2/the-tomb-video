@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getShopifyImageUrl } from "@/lib/shopify/image";
 import { ShopifyImage } from "@/lib/shopify/types";
 
@@ -14,11 +14,40 @@ export function ProductImageCarousel({ images, title }: ProductImageCarouselProp
   const [index, setIndex] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
+  const rafRef = useRef<number | null>(null);
 
   const safeImages = useMemo(
     () => images.filter((image) => Boolean(image?.url)),
     [images],
   );
+
+  useEffect(() => {
+    if (safeImages.length <= 1) return;
+
+    const nextIndex = (index + 1) % safeImages.length;
+    const prevIndex = (index - 1 + safeImages.length) % safeImages.length;
+    const preloadTargets = [
+      safeImages[nextIndex],
+      safeImages[prevIndex],
+      ...safeImages.filter((_, imageIndex) => imageIndex !== index && imageIndex !== nextIndex && imageIndex !== prevIndex),
+    ].slice(0, 8);
+
+    for (const target of preloadTargets) {
+      if (!target?.url) continue;
+
+      const img = new window.Image();
+      img.src = getShopifyImageUrl(target.url, 850);
+      void img.decode?.().catch(() => {});
+    }
+  }, [index, safeImages]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   if (safeImages.length === 0) {
     return (
@@ -30,6 +59,15 @@ export function ProductImageCarousel({ images, title }: ProductImageCarouselProp
 
   const active = safeImages[index];
   const canNavigate = safeImages.length > 1;
+
+  function preloadAtIndex(imageIndex: number) {
+    const target = safeImages[imageIndex];
+    if (!target?.url) return;
+
+    const img = new window.Image();
+    img.src = getShopifyImageUrl(target.url, 850);
+    void img.decode?.().catch(() => {});
+  }
 
   function goNext() {
     if (!canNavigate) return;
@@ -60,10 +98,31 @@ export function ProductImageCarousel({ images, title }: ProductImageCarouselProp
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
-    setZoomOrigin({
+    const nextOrigin = {
       x: Math.min(100, Math.max(0, x)),
       y: Math.min(100, Math.max(0, y)),
+    };
+
+    if (rafRef.current) {
+      window.cancelAnimationFrame(rafRef.current);
+    }
+
+    rafRef.current = window.requestAnimationFrame(() => {
+      setZoomOrigin(nextOrigin);
+      rafRef.current = null;
     });
+  }
+
+  function prefetchPrev() {
+    if (!canNavigate) return;
+    const prevIndex = (index - 1 + safeImages.length) % safeImages.length;
+    preloadAtIndex(prevIndex);
+  }
+
+  function prefetchNext() {
+    if (!canNavigate) return;
+    const nextIndex = (index + 1) % safeImages.length;
+    preloadAtIndex(nextIndex);
   }
 
   return (
@@ -76,10 +135,11 @@ export function ProductImageCarousel({ images, title }: ProductImageCarouselProp
       >
         <div className="absolute inset-0 z-[1]">
           <Image
-            src={getShopifyImageUrl(active.url, 1200)}
+            src={getShopifyImageUrl(active.url, 850)}
             alt={active.altText ?? title}
             fill
             sizes="(max-width: 768px) 100vw, 52vw"
+            quality={75}
             className="object-cover"
             style={{
               transform: `scale(${zoomLevel})`,
@@ -94,6 +154,9 @@ export function ProductImageCarousel({ images, title }: ProductImageCarouselProp
             <button
               type="button"
               onClick={goPrev}
+              onMouseEnter={prefetchPrev}
+              onFocus={prefetchPrev}
+              onTouchStart={prefetchPrev}
               aria-label="Previous photo"
               className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/25 bg-black/55 px-3 py-2 text-lg text-zinc-100 transition hover:border-lime-300/70 hover:text-lime-300"
             >
@@ -102,6 +165,9 @@ export function ProductImageCarousel({ images, title }: ProductImageCarouselProp
             <button
               type="button"
               onClick={goNext}
+              onMouseEnter={prefetchNext}
+              onFocus={prefetchNext}
+              onTouchStart={prefetchNext}
               aria-label="Next photo"
               className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/25 bg-black/55 px-3 py-2 text-lg text-zinc-100 transition hover:border-lime-300/70 hover:text-lime-300"
             >

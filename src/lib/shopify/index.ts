@@ -14,6 +14,10 @@ import { Cart, Collection, Product } from "./types";
 
 type ProductsResponse = {
   products: {
+    pageInfo: {
+      hasNextPage: boolean;
+      endCursor: string | null;
+    };
     nodes: Product[];
   };
 };
@@ -55,15 +59,42 @@ type CartQueryResponse = {
   cart: Cart | null;
 };
 
-export async function getProducts(first = 24): Promise<Product[]> {
-  const data = await shopifyFetch<ProductsResponse>({
-    query: PRODUCTS_QUERY,
-    variables: { first },
-    cache: "force-cache",
-    revalidate: 120,
-  });
+export async function getProducts(first?: number): Promise<Product[]> {
+  const pageSize = 250;
+  const hasLimit = typeof first === "number";
+  let remaining = hasLimit ? Math.max(0, first) : Number.POSITIVE_INFINITY;
+  let after: string | null = null;
+  let hasNextPage = true;
+  const allProducts: Product[] = [];
 
-  return data.products.nodes;
+  while (hasNextPage && remaining > 0) {
+    const batchSize = hasLimit
+      ? Math.min(pageSize, remaining)
+      : pageSize;
+
+    const data: ProductsResponse = await shopifyFetch<ProductsResponse>({
+      query: PRODUCTS_QUERY,
+      variables: {
+        first: batchSize,
+        after,
+      },
+      cache: "force-cache",
+      revalidate: 120,
+    });
+
+    const pageNodes = data.products.nodes;
+    allProducts.push(...pageNodes);
+
+    remaining -= pageNodes.length;
+    hasNextPage = data.products.pageInfo.hasNextPage;
+    after = data.products.pageInfo.endCursor;
+
+    if (pageNodes.length === 0 || !after) {
+      break;
+    }
+  }
+
+  return allProducts;
 }
 
 export async function getProductByHandle(handle: string): Promise<Product | null> {
@@ -73,6 +104,18 @@ export async function getProductByHandle(handle: string): Promise<Product | null
     cache: "force-cache",
     revalidate: 120,
   });
+
+  if (process.env.NODE_ENV === "development" && data.product) {
+    console.info("[shopify:inventory-debug]", {
+      handle: data.product.handle,
+      variants: data.product.variants.nodes.map((variant) => ({
+        id: variant.id,
+        title: variant.title,
+        availableForSale: variant.availableForSale,
+        quantityAvailable: variant.quantityAvailable,
+      })),
+    });
+  }
 
   return data.product;
 }
