@@ -11,12 +11,14 @@ type SortMode = "newest" | "oldest" | "az" | "za" | "priceAsc" | "priceDesc";
 type ProductSortPanelProps = {
   products: Product[];
   emptyMessage?: string;
+  rareBadgeVariant?: "catalog" | "arrivals";
   thumbnailOverrides?: ThumbnailOverrideMap;
 };
 
 export function ProductSortPanel({
   products,
   emptyMessage,
+  rareBadgeVariant = "catalog",
   thumbnailOverrides,
 }: ProductSortPanelProps) {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
@@ -141,6 +143,7 @@ export function ProductSortPanel({
       <ProductGrid
         products={sortedProducts}
         emptyMessage={emptyMessage}
+        rareBadgeVariant={rareBadgeVariant}
         thumbnailOverrides={thumbnailOverrides}
       />
     </>

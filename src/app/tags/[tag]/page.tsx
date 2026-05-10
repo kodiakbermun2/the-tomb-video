@@ -53,6 +53,7 @@ export default async function TagPage({ params }: TagPageProps) {
       <ProductSortPanel
         products={products}
         emptyMessage={`No products are currently tagged as ${decodedTag}.`}
+        rareBadgeVariant="arrivals"
         thumbnailOverrides={thumbnailOverrides}
       />
     </section>
