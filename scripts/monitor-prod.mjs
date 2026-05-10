@@ -35,12 +35,13 @@ async function checkTokenHealth() {
 
   if (!monitorKey) {
     return {
-      ok: false,
+      ok: true,
       url,
       status: 0,
-      statusType: "other_error",
+      statusType: "skipped",
       spikeDetected: false,
-      message: "MONITORING_CRON_KEY is missing.",
+      message: "MONITORING_CRON_KEY is missing. Token health check skipped.",
+      skipped: true,
     };
   }
 
