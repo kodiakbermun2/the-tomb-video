@@ -70,6 +70,10 @@ export function ProductCard({
     const commonClass =
       `pointer-events-none vhs-sticker-btn absolute z-10 p-0 !text-black ${rareBadgeClass}`;
     const cornerClass = corner === "right" ? "rotate-[10deg]" : "-rotate-[10deg]";
+    const leftTopOffset =
+      rareBadgeVariant === "arrivals"
+        ? "calc(-1rem + 5rem)"
+        : "-0.65rem";
     const cornerStyle =
       corner === "right"
         ? { position: "absolute" as const, ...rareBadgePosition }
@@ -79,10 +83,7 @@ export function ProductCard({
               rareBadgeVariant === "arrivals"
                 ? "-0.75rem"
                 : "-0.55rem",
-            top:
-              rareBadgeVariant === "arrivals"
-                ? "-1rem"
-                : "-0.65rem",
+            top: leftTopOffset,
           };
 
     if (sticker === "new") {
