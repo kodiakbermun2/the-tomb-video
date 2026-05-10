@@ -13,6 +13,7 @@ type ProductCardProps = {
   product: Product;
   dense?: boolean;
   rareBadgeVariant?: "catalog" | "arrivals";
+  stickerLayout?: "default" | "stackRight";
   eagerImage?: boolean;
   thumbnailOverride?: ThumbnailOverride | null;
 };
@@ -21,6 +22,7 @@ export function ProductCard({
   product,
   dense = false,
   rareBadgeVariant = "catalog",
+  stickerLayout = "default",
   eagerImage = false,
   thumbnailOverride = null,
 }: ProductCardProps) {
@@ -52,6 +54,11 @@ export function ProductCard({
     isStaffPick,
     ownershipBadge,
   });
+  const stackedRightStickers: ProductStickerKind[] = [
+    ...(ownershipBadge === "NEW" ? ["new" as const] : []),
+    ...(isRare ? ["rare" as const] : []),
+    ...(isStaffPick ? ["staffPick" as const] : []),
+  ];
   const thumbnailStyle = getThumbnailStyle(thumbnailOverride);
   const shouldApplyZoom = Math.abs(thumbnailStyle.zoom - 1) > 0.001;
 
@@ -112,6 +119,46 @@ export function ProductCard({
     );
   };
 
+  const renderStackedRightSticker = (sticker: ProductStickerKind, index: number) => {
+    const topOffset = `calc(${rareBadgePosition.top} + ${index * 3.85}rem)`;
+
+    if (sticker === "new") {
+      return (
+        <span
+          key={`stacked-new-${index}`}
+          className={`pointer-events-none vhs-sticker-btn vhs-sticker-acid absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
+          style={{ position: "absolute", right: rareBadgePosition.right, top: topOffset }}
+        >
+          New!
+        </span>
+      );
+    }
+
+    if (sticker === "rare") {
+      return (
+        <span
+          key={`stacked-rare-${index}`}
+          className={`pointer-events-none vhs-sticker-btn vhs-sticker-pink absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
+          style={{ position: "absolute", right: rareBadgePosition.right, top: topOffset }}
+        >
+          Rare!
+        </span>
+      );
+    }
+
+    return (
+      <span
+        key={`stacked-staff-${index}`}
+        className={`pointer-events-none vhs-sticker-btn vhs-sticker-orange absolute z-10 rotate-[10deg] p-0 text-center uppercase leading-[0.9] tracking-[0.07em] !text-black ${rareBadgeClass}`}
+        style={{ position: "absolute", right: rareBadgePosition.right, top: topOffset }}
+      >
+        Staff
+        <br />
+        Pick
+      </span>
+    );
+  };
+
   return (
     <Link
       href={`/products/${product.handle}`}
@@ -119,8 +166,14 @@ export function ProductCard({
         dense ? "p-2" : "p-2.5"
       }`}
     >
-      {renderSticker(leftSticker, "left")}
-      {renderSticker(rightSticker, "right")}
+      {stickerLayout === "stackRight"
+        ? stackedRightStickers.map((sticker, index) => renderStackedRightSticker(sticker, index))
+        : (
+          <>
+            {renderSticker(leftSticker, "left")}
+            {renderSticker(rightSticker, "right")}
+          </>
+        )}
       <div className={`relative aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-zinc-900 ${dense ? "mb-2" : "mb-3"}`}>
         {image ? (
           <Image

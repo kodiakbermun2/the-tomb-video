@@ -112,9 +112,9 @@ export default async function Home({ searchParams }: HomePageProps) {
       <p
         className="mb-3 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-[#c9ff37] sm:mb-4 sm:text-xs"
         style={{
-          WebkitTextStroke: "0.8px rgba(255,255,255,0.9)",
+          WebkitTextStroke: "0.55px rgba(255,255,255,0.92)",
           textShadow:
-            "0 0 2px rgba(255,255,255,0.9), 0 0 10px rgba(255,255,255,0.62), 0 0 14px rgba(201,255,55,0.7)",
+            "-0.5px -0.5px 0 rgba(255,255,255,0.92), 0.5px -0.5px 0 rgba(255,255,255,0.92), -0.5px 0.5px 0 rgba(255,255,255,0.92), 0.5px 0.5px 0 rgba(255,255,255,0.92), 0 0 2px rgba(201,255,55,0.95), 0 0 10px rgba(201,255,55,0.68)",
         }}
       >
         Free shipping on orders over $70

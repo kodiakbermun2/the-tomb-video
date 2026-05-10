@@ -9,6 +9,7 @@ type ProductGridProps = {
   className?: string;
   columnsClassName?: string;
   rareBadgeVariant?: "catalog" | "arrivals";
+  stickerLayout?: "default" | "stackRight";
   eagerImageCount?: number;
   thumbnailOverrides?: ThumbnailOverrideMap;
 };
@@ -20,6 +21,7 @@ export function ProductGrid({
   className,
   columnsClassName,
   rareBadgeVariant = "catalog",
+  stickerLayout = "default",
   eagerImageCount = 0,
   thumbnailOverrides,
 }: ProductGridProps) {
@@ -54,6 +56,7 @@ export function ProductGrid({
             product={product}
             dense={dense}
             rareBadgeVariant={rareBadgeVariant}
+            stickerLayout={stickerLayout}
             eagerImage={index < eagerImageCount}
             thumbnailOverride={thumbnailOverrides?.[product.handle.toLowerCase()] ?? null}
           />

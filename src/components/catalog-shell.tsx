@@ -225,6 +225,7 @@ export function CatalogShell({
         emptyMessage="No matching titles found for your current search/filter combination."
         className="mt-0"
         columnsClassName="grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 xl:gap-4"
+        stickerLayout={sectionId === "catalog" ? "stackRight" : "default"}
         eagerImageCount={1}
         thumbnailOverrides={thumbnailOverrides}
       />

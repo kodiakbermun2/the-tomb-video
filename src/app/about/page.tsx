@@ -12,7 +12,7 @@ export default function AboutPage() {
     <main className="space-y-5 pb-8">
       <header className="noise-panel rounded-xl p-5 sm:p-7">
         <p className="text-sm uppercase tracking-[0.22em] text-zinc-300">The Tomb Video</p>
-        <h1 className="tomb-title mt-2 text-4xl text-lime-300 sm:text-6xl">About Us</h1>
+        <h1 className="tomb-title mt-2 text-4xl !text-[#c9ff37] sm:text-6xl">About Us</h1>
         <div className="mt-3 max-w-3xl space-y-3 text-sm text-zinc-200 sm:text-base">
           <p>
             The Tomb Video is an owner-operated physical media storefront focused on horror,
@@ -38,7 +38,7 @@ export default function AboutPage() {
       </header>
 
       <section className="noise-panel rounded-xl p-5 sm:p-6">
-        <h2 className="tomb-title text-4xl text-lime-300 sm:text-6xl">Store & Owners</h2>
+        <h2 className="tomb-title text-4xl !text-[#c9ff37] sm:text-6xl">Store & Owners</h2>
         <p className="mt-2 text-sm leading-relaxed text-zinc-200 sm:text-base">
           We run this shop directly, from intake and grading to listing and shipping. Every product
           listing is reviewed manually with notes on condition, format, and region compatibility.
@@ -53,7 +53,7 @@ export default function AboutPage() {
       </section>
 
       <section className="noise-panel rounded-xl p-5 sm:p-6">
-        <h2 className="tomb-title text-4xl text-lime-300 sm:text-6xl">Policies</h2>
+        <h2 className="tomb-title text-4xl !text-[#c9ff37] sm:text-6xl">Policies</h2>
         <div className="mt-2 space-y-3 text-sm leading-relaxed text-zinc-200 sm:text-base">
           <p>
             All items are sold as described in each listing. Condition notes and known defects are
