@@ -41,9 +41,10 @@ export function ProductCard({
     ownershipBadge === "NEW"
       ? "border-lime-300/90 bg-[#c9ff37] !text-black"
       : "border-zinc-400/70 bg-zinc-500/30 text-zinc-100";
+  const isArrivalsVariant = rareBadgeVariant === "arrivals";
   const rareBadgeClass =
-    rareBadgeVariant === "arrivals"
-      ? "h-20 w-20 text-[15px]"
+    isArrivalsVariant
+      ? "h-14 w-14 text-[12px] sm:h-20 sm:w-20 sm:text-[15px]"
       : "h-14 w-14 text-[12px]";
   const rareBadgePosition =
     rareBadgeVariant === "arrivals"
@@ -70,27 +71,19 @@ export function ProductCard({
     const commonClass =
       `pointer-events-none vhs-sticker-btn absolute z-10 p-0 !text-black ${rareBadgeClass}`;
     const cornerClass = corner === "right" ? "rotate-[10deg]" : "-rotate-[10deg]";
-    const leftTopOffset =
-      rareBadgeVariant === "arrivals"
-        ? "calc(-1rem + 5rem)"
-        : "-0.65rem";
-    const cornerStyle =
+    const positionClass =
       corner === "right"
-        ? { position: "absolute" as const, ...rareBadgePosition }
-        : {
-            position: "absolute" as const,
-            left:
-              rareBadgeVariant === "arrivals"
-                ? "-0.75rem"
-                : "-0.55rem",
-            top: leftTopOffset,
-          };
+        ? isArrivalsVariant
+          ? "right-[-0.55rem] top-[-0.65rem] sm:right-[-0.75rem] sm:top-[-1rem]"
+          : "right-[-0.55rem] top-[-0.65rem]"
+        : isArrivalsVariant
+          ? "left-[-0.55rem] top-[calc(-0.65rem+3.5rem)] sm:left-[-0.75rem] sm:top-[calc(-1rem+5rem)]"
+          : "left-[-0.55rem] top-[-0.65rem]";
 
     if (sticker === "new") {
       return (
         <span
-          className={`${commonClass} vhs-sticker-acid ${cornerClass} uppercase tracking-[0.12em]`}
-          style={cornerStyle}
+          className={`${commonClass} vhs-sticker-acid ${cornerClass} ${positionClass} uppercase tracking-[0.12em]`}
         >
           New!
         </span>
@@ -100,8 +93,7 @@ export function ProductCard({
     if (sticker === "rare") {
       return (
         <span
-          className={`${commonClass} vhs-sticker-pink ${cornerClass} uppercase tracking-[0.12em]`}
-          style={cornerStyle}
+          className={`${commonClass} vhs-sticker-pink ${cornerClass} ${positionClass} uppercase tracking-[0.12em]`}
         >
           Rare!
         </span>
@@ -110,8 +102,7 @@ export function ProductCard({
 
     return (
       <span
-        className={`${commonClass} vhs-sticker-orange ${cornerClass} text-center uppercase leading-[0.9] tracking-[0.07em]`}
-        style={cornerStyle}
+        className={`${commonClass} vhs-sticker-orange ${cornerClass} ${positionClass} text-center uppercase leading-[0.9] tracking-[0.07em]`}
       >
         Staff
         <br />
