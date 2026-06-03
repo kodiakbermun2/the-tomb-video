@@ -185,6 +185,10 @@ select:focus-visible {
   transition: transform 140ms ease, filter 140ms ease;
 }
 
+.product-card-sticker {
+  position: absolute;
+}
+
 .vhs-sticker-btn:hover {
   transform: translateY(-1px) rotate(-1deg);
   filter: saturate(1.08);

@@ -69,7 +69,7 @@ export function ProductCard({
     }
 
     const commonClass =
-      `pointer-events-none vhs-sticker-btn absolute z-10 p-0 !text-black ${rareBadgeClass}`;
+      `product-card-sticker pointer-events-none vhs-sticker-btn absolute z-10 p-0 !text-black ${rareBadgeClass}`;
     const cornerClass = corner === "right" ? "rotate-[10deg]" : "-rotate-[10deg]";
     const positionClass =
       corner === "right"
@@ -84,6 +84,7 @@ export function ProductCard({
       return (
         <span
           className={`${commonClass} vhs-sticker-acid ${cornerClass} ${positionClass} uppercase tracking-[0.12em]`}
+          style={{ position: "absolute" }}
         >
           New!
         </span>
@@ -94,6 +95,7 @@ export function ProductCard({
       return (
         <span
           className={`${commonClass} vhs-sticker-pink ${cornerClass} ${positionClass} uppercase tracking-[0.12em]`}
+          style={{ position: "absolute" }}
         >
           Rare!
         </span>
@@ -103,6 +105,7 @@ export function ProductCard({
     return (
       <span
         className={`${commonClass} vhs-sticker-orange ${cornerClass} ${positionClass} text-center uppercase leading-[0.9] tracking-[0.07em]`}
+        style={{ position: "absolute" }}
       >
         Staff
         <br />
@@ -118,7 +121,7 @@ export function ProductCard({
       return (
         <span
           key={`stacked-new-${index}`}
-          className={`pointer-events-none vhs-sticker-btn vhs-sticker-acid absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
+          className={`product-card-sticker pointer-events-none vhs-sticker-btn vhs-sticker-acid absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
           style={{ position: "absolute", right: rareBadgePosition.right, top: topOffset }}
         >
           New!
@@ -130,7 +133,7 @@ export function ProductCard({
       return (
         <span
           key={`stacked-rare-${index}`}
-          className={`pointer-events-none vhs-sticker-btn vhs-sticker-pink absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
+          className={`product-card-sticker pointer-events-none vhs-sticker-btn vhs-sticker-pink absolute z-10 rotate-[10deg] p-0 uppercase tracking-[0.12em] !text-black ${rareBadgeClass}`}
           style={{ position: "absolute", right: rareBadgePosition.right, top: topOffset }}
         >
           Rare!
@@ -141,7 +144,7 @@ export function ProductCard({
     return (
       <span
         key={`stacked-staff-${index}`}
-        className={`pointer-events-none vhs-sticker-btn vhs-sticker-orange absolute z-10 rotate-[10deg] p-0 text-center uppercase leading-[0.9] tracking-[0.07em] !text-black ${rareBadgeClass}`}
+        className={`product-card-sticker pointer-events-none vhs-sticker-btn vhs-sticker-orange absolute z-10 rotate-[10deg] p-0 text-center uppercase leading-[0.9] tracking-[0.07em] !text-black ${rareBadgeClass}`}
         style={{ position: "absolute", right: rareBadgePosition.right, top: topOffset }}
       >
         Staff
