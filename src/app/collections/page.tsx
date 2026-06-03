@@ -72,6 +72,11 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Bruce Lee",
       "David Cronenberg",
       "Shaw Bros",
+      "Arnold Schwarzenegger",
+      "Ingmar Bergman",
+      "Mary Higgins Clark",
+      "Stanley Kubrick",
+      "Stephen King",
     ],
   },
   {
@@ -89,6 +94,12 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Ultraviolet",
       "Boxset",
       "Screener",
+      "Anthology",
+      "VideoDisc",
+      "TV Movie",
+      "TV Series",
+      "Hardcover",
+      "Silent Film",
     ],
   },
   {
@@ -111,19 +122,24 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Aerie",
       "Archway",
       "Zebra Books",
+      "Warner Books",
+      "Sphere Books",
+      "Dell",
     ],
   },
   {
     title: "Region",
-    tags: ["Indonesian", "Italian", "Ozploitation", "French", "Chinese", "Japanese"],
+    tags: ["Indonesian", "Italian", "Ozploitation", "French", "Chinese", "Japanese", "Swedish"],
   },
   {
     title: "Series",
-    tags: ["Mad Max", "Godzilla", "Scooby-Doo", "Friday the 13th", "TMNT"],
+    tags: ["Mad Max", "Godzilla", "Scooby-Doo", "Friday the 13th", "TMNT", "Dune", "Terminator"],
   },
   {
     title: "Studio",
     tags: [
+      "20th Century Fox",
+      "A24",
       "Columbia Pictures",
       "Universal",
       "Varèse Sarabande Records",
@@ -156,11 +172,20 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Screen Gems",
       "Screen Media Films",
       "Videoasia",
+      "Embassy Pictures",
+      "Fremantle Media",
+      "Goodtimes Home Video",
+      "Hollywood Movie Greats",
+      "RCA",
+      "Viking Video",
+      "Weintraub Entertainment Group",
+      "Wild Eye Releasing",
     ],
   },
   {
     title: "Label",
     tags: [
+      "A24",
       "Shout! Factory",
       "Scream Factory",
       "Blue Underground",
@@ -176,6 +201,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "SRS Cinema",
       "Tokyo Shock",
       "Vestron",
+      "Redemption",
     ],
   },
   {
@@ -223,15 +249,36 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Cults",
       "Ninjas",
       "Voodoo",
+      "Atomic Age",
+      "Black Cinema",
+      "Christmas",
+      "Dogs",
+      "Halloween",
+      "Blacksploitation",
+      "Holiday Horror",
+      "Hospital Horror",
+      "Nautical Horror",
+      "Killer Animals",
+      "Killer Machines",
+      "Mad Scientist",
+      "NYsploitation",
+      "Queer",
+      "Sea Creatures",
+      "Sleaze",
+      "Virus",
     ],
   },
   {
     title: "Era",
     tags: [
+      "'20 Films",
+      "'30s Films",
+      "'50s Films",
       "'50s Books",
       "'60s Books",
       "2000s Films",
       "2010s Films",
+      "2010s TV",
       "2000s Books",
       "'00s Films",
       "'60s Films",
@@ -340,6 +387,10 @@ function getStickerTextClass(tag: string) {
     return "text-[10px] tracking-[0.03em] sm:text-[11px]";
   }
 
+  if (normalized === getNormalizedTagKey("Blacksploitation")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
+  }
+
   if (normalized === getNormalizedTagKey("Exploitation")) {
     return "text-[10px] tracking-[0.04em] sm:text-[11px]";
   }
@@ -358,6 +409,18 @@ function getStickerTextClass(tag: string) {
 
   if (normalized === getNormalizedTagKey("Movie Novelization")) {
     return "text-[11px] tracking-[0.07em] sm:text-[12px]";
+  }
+
+  if (normalized === getNormalizedTagKey("Weintraub Entertainment Group")) {
+    return "text-[7px] tracking-[0.01em] sm:text-[8px]";
+  }
+
+  if (normalized === getNormalizedTagKey("Arnold Schwarzenegger")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
+  }
+
+  if (normalized === getNormalizedTagKey("NYsploitation")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
   }
 
   return "text-[12px] tracking-[0.08em] sm:text-[13px]";
