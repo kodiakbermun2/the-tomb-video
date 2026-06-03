@@ -26,6 +26,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Mystery",
       "Sci-Fi",
       "Suspense",
+      "Suspence",
       "Adventure",
       "Drama",
       "Fantasy",
@@ -77,7 +78,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
     title: "Format",
     tags: [
       "Paperback",
-      "Pocketbook",
+      "Pocket Book",
       "Movie Novelization",
       "Multi-Pack",
       "Audiobook",
@@ -179,7 +180,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Media",
-    tags: ["CD", "VHS", "DVD", "Blu-ray", "Cassette", "Book"],
+    tags: ["CD", "VHS", "DVD", "Blu-ray", "Cassette", "Book", "CED", "LaserDisc", "Vinyl", "Magazine", "Videodisc"],
   },
   {
     title: "Theme",
@@ -381,17 +382,23 @@ export default async function CollectionsPage() {
     }
   }
 
-  const tags = Array.from(allTags).sort((a, b) =>
+  const rawTags = Array.from(allTags).sort((a, b) =>
     a.localeCompare(b, undefined, { sensitivity: "base" }),
   );
   const tagByKey = new Map<string, string>();
 
-  for (const tag of tags) {
+  for (const tag of rawTags) {
     const key = getNormalizedTagKey(tag);
     if (!tagByKey.has(key)) {
       tagByKey.set(key, tag);
     }
   }
+
+  const tags = Array.from(tagByKey.values()).sort((a, b) =>
+    formatTagDisplay(a).localeCompare(formatTagDisplay(b), undefined, {
+      sensitivity: "base",
+    }),
+  );
 
   const usedKeys = new Set<string>();
 
