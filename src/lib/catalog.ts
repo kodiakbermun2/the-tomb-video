@@ -2,17 +2,22 @@ import { Product } from "@/lib/shopify/types";
 import { parseProductDescription } from "@/lib/product-metadata";
 
 const FORMAT_KEYWORDS = [
+  "ced",
+  "capacitance electronic disc",
   "vhs",
   "dvd",
   "blu-ray",
   "bluray",
   "4k",
   "laserdisc",
+  "laser disc",
   "cd",
   "compact disc",
   "vinyl",
   "lp",
   "cassette",
+  "magazine",
+  "zine",
   "book",
   "poster",
   "apparel",
@@ -23,7 +28,10 @@ const LEADING_ARTICLE_PATTERN = /^(?:the|a|an)\s+/i;
 export function normalizeFormatLabel(value: string) {
   if (value === "bluray") return "blu-ray";
   if (value === "compact disc") return "cd";
+  if (value === "capacitance electronic disc") return "ced";
+  if (value === "laser disc") return "laserdisc";
   if (value === "lp") return "vinyl";
+  if (value === "zine") return "magazine";
   return value;
 }
 

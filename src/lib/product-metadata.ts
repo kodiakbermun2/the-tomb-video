@@ -347,7 +347,20 @@ export function getProductTags(product: Product) {
 }
 
 export function getGenreTags(product: Product) {
-  const mediaHints = ["vhs", "blu-ray", "bluray", "dvd", "4k", "laserdisc", "vinyl", "cassette"];
+  const mediaHints = [
+    "ced",
+    "vhs",
+    "blu-ray",
+    "bluray",
+    "dvd",
+    "4k",
+    "laserdisc",
+    "laser disc",
+    "vinyl",
+    "cassette",
+    "magazine",
+    "zine",
+  ];
   const studio = (product.vendor || "").toLowerCase();
 
   return getProductTags(product).filter((tag) => {

@@ -56,6 +56,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   ).sort();
 
   const formatLabelMap: Record<string, string> = {
+    "ced": "CED",
     "4k": "4K",
     "blu-ray": "Blu-ray",
     "cd": "CD",
@@ -63,6 +64,7 @@ export default async function Home({ searchParams }: HomePageProps) {
     "vhs": "VHS",
     "laserdisc": "LaserDisc",
     "vinyl": "Vinyl",
+    "magazine": "Magazine",
     "cassette": "Cassette",
     "book": "Book",
     "poster": "Poster",
@@ -70,13 +72,15 @@ export default async function Home({ searchParams }: HomePageProps) {
   };
 
   const formatClassMap: Record<string, string> = {
+    "ced": "border-cyan-300/85 bg-cyan-200 !text-black",
     "vhs": "vhs-sticker-acid",
     "dvd": "vhs-sticker-cream",
     "blu-ray": "border-sky-300/85 bg-sky-300 !text-black",
     "cd": "border-zinc-500/85 bg-zinc-400 !text-black",
     "4k": "border-white/35 bg-black !text-zinc-100",
-    "laserdisc": "vhs-sticker-orange",
-    "vinyl": "border-violet-300/85 bg-violet-200 !text-black",
+    "laserdisc": "border-orange-300/85 bg-orange-200 !text-black",
+    "vinyl": "border-fuchsia-300/85 bg-fuchsia-200 !text-black",
+    "magazine": "border-emerald-300/85 bg-emerald-200 !text-black",
     "cassette": "border-violet-400/90 bg-violet-300 !text-black",
     "book": "border-amber-300/90 bg-amber-300 !text-black",
     "poster": "vhs-sticker-cream",

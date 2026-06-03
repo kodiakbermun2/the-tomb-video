@@ -1,6 +1,10 @@
 export function getMediaChipClass(mediaType: string) {
   const normalized = mediaType.trim().toLowerCase();
 
+  if (normalized.includes("ced") || normalized.includes("capacitance electronic disc")) {
+    return "border-cyan-300/85 bg-cyan-200 !text-black";
+  }
+
   if (normalized.includes("vhs")) {
     return "border-lime-300/85 bg-lime-300 !text-black";
   }
@@ -21,8 +25,12 @@ export function getMediaChipClass(mediaType: string) {
     return "border-zinc-500/85 bg-zinc-400 !text-black";
   }
 
+  if (normalized.includes("laserdisc") || normalized.includes("laser disc")) {
+    return "border-orange-300/85 bg-orange-200 !text-black";
+  }
+
   if (normalized.includes("vinyl") || normalized.includes("lp")) {
-    return "border-violet-300/85 bg-violet-200 !text-black";
+    return "border-fuchsia-300/85 bg-fuchsia-200 !text-black";
   }
 
   if (normalized.includes("cassette")) {
@@ -31,6 +39,10 @@ export function getMediaChipClass(mediaType: string) {
 
   if (normalized.includes("book")) {
     return "border-amber-300/90 bg-amber-300 !text-black";
+  }
+
+  if (normalized.includes("magazine") || normalized.includes("zine")) {
+    return "border-emerald-300/85 bg-emerald-200 !text-black";
   }
 
   return "";
