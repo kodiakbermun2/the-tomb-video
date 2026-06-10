@@ -34,10 +34,6 @@ function canonicalizeTagDisplay(value: string) {
     return "Columbia Pictures";
   }
 
-  if (normalized === "pocketbook") {
-    return "Pocket Book";
-  }
-
   return value;
 }
 

@@ -74,6 +74,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Shaw Bros",
       "Arnold Schwarzenegger",
       "Ingmar Bergman",
+      "Michael Myers",
       "Mary Higgins Clark",
       "Stanley Kubrick",
       "Stephen King",
@@ -83,6 +84,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
     title: "Format",
     tags: [
       "Paperback",
+      "Pocketbook",
       "Pocket Book",
       "Movie Novelization",
       "Multi-Pack",
@@ -100,6 +102,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "TV Series",
       "Hardcover",
       "Silent Film",
+      "Comic",
     ],
   },
   {
@@ -129,17 +132,23 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
   },
   {
     title: "Region",
-    tags: ["Indonesian", "Italian", "Ozploitation", "French", "Chinese", "Japanese", "Swedish"],
+    tags: ["Indonesian", "Italian", "Ozploitation", "French", "Chinese", "Japanese", "Swedish", "German"],
   },
   {
     title: "Series",
-    tags: ["Mad Max", "Godzilla", "Scooby-Doo", "Friday the 13th", "TMNT", "Dune", "Terminator"],
+    tags: ["Mad Max", "Godzilla", "Scooby-Doo", "Friday the 13th", "TMNT", "Dune", "Terminator", "Halloween Series"],
   },
   {
     title: "Studio",
     tags: [
       "20th Century Fox",
       "A24",
+      "Janus",
+      "Death Waltz",
+      "Empire Pictures",
+      "Sacred Bones Records",
+      "Warner Records",
+      "WRWTFWW",
       "Columbia Pictures",
       "Universal",
       "Varèse Sarabande Records",
@@ -186,6 +195,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
     title: "Label",
     tags: [
       "A24",
+      "Janus",
       "Shout! Factory",
       "Scream Factory",
       "Blue Underground",
@@ -262,6 +272,9 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Killer Machines",
       "Mad Scientist",
       "NYsploitation",
+      "Hicksploitation",
+      "Satanic Panic",
+      "Spiders",
       "Queer",
       "Sea Creatures",
       "Sleaze",
@@ -273,6 +286,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
     tags: [
       "'20 Films",
       "'30s Films",
+      "'40s Films",
       "'50s Films",
       "'50s Books",
       "'60s Books",
@@ -388,6 +402,10 @@ function getStickerTextClass(tag: string) {
   }
 
   if (normalized === getNormalizedTagKey("Blacksploitation")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
+  }
+
+  if (normalized === getNormalizedTagKey("Hicksploitation")) {
     return "text-[9px] tracking-[0.02em] sm:text-[10px]";
   }
 
