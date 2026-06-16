@@ -97,6 +97,11 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Dean Koontz",
       "Peter Cushing",
       "Guillermo Del Toro",
+      "Steven Spielberg",
+      "Stan Lee",
+      "John Waters",
+      "Ed Wood",
+      "Herschell Gordon Lewis",
     ],
   },
   {
