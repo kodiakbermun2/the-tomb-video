@@ -78,6 +78,25 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Mary Higgins Clark",
       "Stanley Kubrick",
       "Stephen King",
+      "Wes Craven",
+      "Quentin Tarantino",
+      "Edgar Allan Poe",
+      "Tim Burton",
+      "H.R. Giger",
+      "Clive Barker",
+      "Wes Anderson",
+      "Takashi Miike",
+      "Tobe Hooper",
+      "David Lynch",
+      "Bram Stoker",
+      "William Castle",
+      "Christopher Lee",
+      "Sam Raimi",
+      "Vincent Price",
+      "Mario Bava",
+      "Dean Koontz",
+      "Peter Cushing",
+      "Guillermo Del Toro",
     ],
   },
   {
@@ -103,6 +122,10 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Hardcover",
       "Silent Film",
       "Comic",
+      "Graphic Novel",
+      "Coffee Table Book",
+      "Biography",
+      "Catalog",
     ],
   },
   {
@@ -128,15 +151,26 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Warner Books",
       "Sphere Books",
       "Dell",
+      "Ace Charter",
+      "Berkley",
+      "HarperCollins",
+      "Stone",
+      "Ballantine",
+      "Puffin",
+      "Carroll & Graf",
+      "Fawcet Gold Medal",
+      "Harlequin",
+      "Plume",
+      "Zebra"
     ],
   },
   {
     title: "Region",
-    tags: ["Indonesian", "Italian", "Ozploitation", "French", "Chinese", "Japanese", "Swedish", "German"],
+    tags: ["Indonesian", "Spanish", "Italian", "Ozploitation", "French", "Chinese", "Japanese", "Swedish", "German"],
   },
   {
     title: "Series",
-    tags: ["Mad Max", "Godzilla", "Scooby-Doo", "Friday the 13th", "TMNT", "Dune", "Terminator", "Halloween Series"],
+    tags: ["Hellraiser", "A Nightmare on Elm Street", "The Dark Tower", "Mad Max", "Godzilla", "Scooby-Doo", "Friday the 13th", "TMNT", "Dune", "Terminator", "Halloween Series", "Alien", "Predator", "Texas Chainsaw Massacre", "Child's Play", "Evil Dead", "Goosebumps", "Star Wars", "Star Trek", "Tales from the Crypt",],
   },
   {
     title: "Studio",
@@ -189,6 +223,13 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Viking Video",
       "Weintraub Entertainment Group",
       "Wild Eye Releasing",
+      "Brentwood Home Video",
+      "Echo Bridge Entertainment",
+      "Fist Look",
+      "Screen Media",
+      "Slingshot Entertainment",
+      "Trinity Home Entertainment",
+      "Tempe Digital",
     ],
   },
   {
@@ -212,6 +253,14 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Tokyo Shock",
       "Vestron",
       "Redemption",
+      "Synapse",
+      "Warner Archive",
+      "Cauldron Films",
+      "Vinegar Syndrome",
+      "Shriek Show",
+      "SRS Cinema",
+      "Saturn's Core",
+      "Cult Epics",
     ],
   },
   {
@@ -279,6 +328,20 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "Sea Creatures",
       "Sleaze",
       "Virus",
+      "Cats",
+      "Superheroes",
+      "Conspiracy Theories",
+      "Cannibals",
+      "Creature Feature",
+      "Dolls",
+      "Horror Noire",
+      "Monsters",
+      "Paranormal",
+      "Religion",
+      "True Crime",
+      "Snakes",
+      "Valentine's Day",
+      "Werecats",
     ],
   },
   {
@@ -303,6 +366,7 @@ const COLLECTION_TAG_GROUPS: Array<{ title: string; tags: string[] }> = [
       "'80s Books",
       "'70s Books",
       "1900s Books",
+      "1890s Books",
     ],
   },
 ];
@@ -406,6 +470,18 @@ function getStickerTextClass(tag: string) {
   }
 
   if (normalized === getNormalizedTagKey("Hicksploitation")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
+  }
+
+   if (normalized === getNormalizedTagKey("Trinity Home Entertainment")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
+  }
+
+   if (normalized === getNormalizedTagKey("Slingshot Entertainment")) {
+    return "text-[9px] tracking-[0.02em] sm:text-[10px]";
+  }
+
+   if (normalized === getNormalizedTagKey("Echo Bridge Entertainment")) {
     return "text-[9px] tracking-[0.02em] sm:text-[10px]";
   }
 
